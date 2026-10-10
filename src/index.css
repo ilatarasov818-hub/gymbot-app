@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* Цвета берём из темы Telegram; запасные — для браузера и макетов. */
+:root {
+  --bg: var(--tg-theme-bg-color, #ffffff);
+  --surface: var(--tg-theme-secondary-bg-color, #f2f2f7);
+  --fg: var(--tg-theme-text-color, #0b0b0f);
+  --hint: var(--tg-theme-hint-color, #8e8e93);
+  --accent: var(--tg-theme-button-color, #2481cc);
+  --accent-fg: var(--tg-theme-button-text-color, #ffffff);
+  --line: color-mix(in srgb, var(--fg) 9%, transparent);
+}
+:root[data-theme="dark"] {
+  --bg: var(--tg-theme-bg-color, #1c1c1e);
+  --surface: var(--tg-theme-secondary-bg-color, #000000);
+  --fg: var(--tg-theme-text-color, #ffffff);
+  --hint: var(--tg-theme-hint-color, #8d8e93);
+  --accent: var(--tg-theme-button-color, #3e9bf0);
+}
+
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-hint: var(--hint);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-line: var(--line);
+  --color-good: #34c759;
+  --color-warn: #ff9f0a;
+  --text-caption: 0.8125rem;
+  --text-body: 1rem;
+  --text-title: 1.375rem;
+  --text-display: 3.5rem;
+  --radius-card: 1.25rem;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
