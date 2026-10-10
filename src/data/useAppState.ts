@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { AppState, Finished } from "@/lib/types";
 import { onVisible } from "@/platform/web/telegram";
-import { api, type Action } from "./api";
+import { api, type Action, type ProfileAction } from "./api";
 
 const REFRESH_MS = 15000;
 
@@ -36,14 +36,14 @@ export function useAppState() {
     return () => { clearInterval(timer); off(); };
   }, [refresh]);
 
-  const act = useCallback(async (action: Action) => {
+  // Одно действие за раз: пока бот отвечает, кнопки заблокированы.
+  const run = useCallback(async <T extends { state: AppState }>(call: () => Promise<T>) => {
     if (busyRef.current) return null;
     busyRef.current = true;
     setBusy(true);
     try {
-      const result = await api.act(action);
+      const result = await call();
       apply(result.state);
-      if (result.finished) setFinished(result.finished);
       setError(null);
       return result;
     } catch (e) {
@@ -55,7 +55,15 @@ export function useAppState() {
     }
   }, [apply]);
 
-  return { state, error, busy, finished, offset, refresh, act, closeFinished: () => setFinished(null), clearError: () => setError(null) };
+  const act = useCallback(async (action: Action) => {
+    const result = await run(() => api.act(action));
+    if (result?.finished) setFinished(result.finished);
+    return result;
+  }, [run]);
+
+  const saveProfile = useCallback((action: ProfileAction) => run(() => api.profileAct(action)), [run]);
+
+  return { state, error, busy, finished, offset, refresh, act, saveProfile, closeFinished: () => setFinished(null), clearError: () => setError(null) };
 }
 
 export function useLoad<T>(load: () => Promise<T>) {

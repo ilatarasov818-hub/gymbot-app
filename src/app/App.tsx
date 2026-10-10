@@ -10,15 +10,18 @@ import { FinishScreen } from "@/features/workout/FinishScreen";
 import { useRestLeft } from "@/features/workout/useRestLeft";
 import { ProgressScreen } from "@/features/progress/ProgressScreen";
 import { HistoryScreen } from "@/features/history/HistoryScreen";
+import { ProfileTab } from "@/features/profile/ProfileTab";
+import { SurveyScreen } from "@/features/profile/SurveyScreen";
 import { useAppState } from "@/data/useAppState";
 import { getParam } from "@/platform/web/location";
-import { closeApp, confirm, haptic } from "@/platform/web/telegram";
+import { confirm, haptic } from "@/platform/web/telegram";
 import { TAB_IDS, type Tab } from "./routes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "home", label: "Главная", icon: "home" },
   { id: "progress", label: "Прогресс", icon: "chart" },
   { id: "history", label: "История", icon: "list" },
+  { id: "profile", label: "Профиль", icon: "user" },
 ];
 
 function initialTab(): Tab {
@@ -41,12 +44,9 @@ export function App() {
       ? <Centered><p>{app.error}</p><div className="w-full max-w-60"><Button variant="secondary" onClick={() => void app.refresh()}>Ещё раз</Button></div></Centered>
       : <Centered>Загрузка…</Centered>;
   } else if (!state.profileReady) {
-    screen = (
-      <Centered>
-        <p>Сначала ответь на несколько вопросов в чате — я соберу программу под тебя.</p>
-        <div className="w-full max-w-60"><Button onClick={closeApp}>Перейти в чат</Button></div>
-      </Centered>
-    );
+    screen = <SurveyScreen busy={busy} onSubmit={(answers) => {
+      void app.saveProfile({ name: "survey", answers }).then((done) => done && haptic("success"));
+    }} />;
   } else if (workout && workout.rest && restLeft > 0) {
     screen = <RestScreen workout={workout} left={restLeft} busy={busy}
       onSkip={() => void act({ name: "skip" })} onExtend={() => void act({ name: "extend" })} />;
@@ -69,6 +69,8 @@ export function App() {
     screen = <ProgressScreen />;
   } else if (tab === "history") {
     screen = <HistoryScreen />;
+  } else if (tab === "profile") {
+    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} />;
   } else {
     screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
       haptic("light");

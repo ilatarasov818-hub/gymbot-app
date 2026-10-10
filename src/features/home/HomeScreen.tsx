@@ -53,14 +53,12 @@ export function HomeScreen({ state, busy, onStart }: {
 
       <Card title="Неделя">
         {state.week.map((d) => (
-          <button key={d.day} type="button" className="block w-full text-left" onClick={() => setPicked(d.day)}>
-            <Row
+          <Row key={d.day} onClick={() => setPicked(d.day)}
               left={<span className={d.day === day?.day ? "font-semibold" : ""}>{d.title}</span>}
               sub={d.today ? "сегодня" : d.weekday}
               right={d.done
                 ? <span className="flex items-center gap-1 text-good"><Icon name="check" size={18} />готово</span>
                 : <Icon name="chevron" size={18} />} />
-          </button>
         ))}
       </Card>
     </div>

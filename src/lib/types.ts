@@ -57,3 +57,32 @@ export type HistoryEntry = {
   minutes: number;
   exercises: { name: string; sets: DoneSet[] }[];
 };
+
+export type Profile = {
+  goal: string | null;
+  level: string | null;
+  weekdays: number[];
+  duration: number | null;
+  place: string | null;
+  equipment: string[];
+  dumbbellStep: number | null;
+  stackStep: number | null;
+  limitations: string | null;
+  replacements: { exercise: string; replacement: string | null }[];
+  ownProgram: boolean;
+  stale: boolean;
+};
+
+export type SurveyAnswers = {
+  goal: string;
+  level: string;
+  weekdays: number[];
+  duration: number;
+  place: string;
+  equipment: string[];
+  dumbbellStep: number | null;
+  stackStep: number | null;
+  limitations: string | null;
+};
+
+export type ProfileResult = { message: string; profile: Profile; state: AppState };

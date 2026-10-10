@@ -8,8 +8,14 @@ import { startTelegram } from "@/platform/web/telegram";
 applyTheme(getParam("theme"));
 startTelegram((scheme) => applyTheme(getParam("theme") ?? scheme));
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const root = createRoot(document.getElementById("root")!);
+const mock = getParam("mock");
+if (import.meta.env.DEV && mock) {
+  void import("@/dev/Mockups").then(({ Mockups }) => root.render(<Mockups name={mock} />));
+} else {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+}

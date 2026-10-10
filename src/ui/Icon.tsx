@@ -12,6 +12,7 @@ const PATHS = {
   trophy: "M8 21h8m-4-4v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3m10-5h3v2a3 3 0 0 1-3 3",
   chevron: "M9 6l6 6-6 6",
   close: "M6 6l12 12M18 6 6 18",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
 } as const;
 
 export type IconName = keyof typeof PATHS;
