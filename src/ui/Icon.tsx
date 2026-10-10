@@ -8,6 +8,7 @@ const PATHS = {
   flag: "M5 21V4m0 0h11l-2 4 2 4H5",
   play: "M8 5v14l11-7z",
   skip: "M5 5v14l9-7zM16 5h3v14h-3z",
+  swap: "M4 8h15m0 0-4-4m4 4-4 4M20 16H5m0 0 4-4m-4 4 4 4",
   timer: "M12 8v5l3 2M9 2h6M12 22a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
   trophy: "M8 21h8m-4-4v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3m10-5h3v2a3 3 0 0 1-3 3",
   chevron: "M9 6l6 6-6 6",

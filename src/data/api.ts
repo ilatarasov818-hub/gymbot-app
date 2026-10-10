@@ -33,6 +33,8 @@ export type Action =
   | { name: "skip" }
   | { name: "extend" }
   | { name: "finish" }
+  | { name: "skipExercise"; later: boolean }
+  | { name: "swap"; exercise: string }
   | { name: "extra"; title: string; weight: number; reps: number[] };
 
 // Замены под ограничения подбирает ИИ — это бывает долго.

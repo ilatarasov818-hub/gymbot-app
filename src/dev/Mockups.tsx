@@ -6,6 +6,7 @@ import { SurveyScreen } from "@/features/profile/SurveyScreen";
 import { ChatScreen } from "@/features/coach/ChatScreen";
 import { DeleteSheet, DeletedScreen, FeedbackSheet } from "@/features/profile/AccountSheets";
 import { WorkoutScreen } from "@/features/workout/WorkoutScreen";
+import { SkipSheet, SwapSheet } from "@/features/workout/ExerciseSheets";
 import type { ActiveWorkout, ChatMessage, Profile } from "@/lib/types";
 import sampleImage from "./sample.webp";
 
@@ -45,9 +46,16 @@ const WORKOUT = (info: ActiveWorkout["exercises"][number]["info"], name = "Сг�
     { name: "Французский жим", sets: 3, repsMin: 10, repsMax: 12, bodyweight: false },
   ],
   currentSet: 2, weight: 12, results: [{ weight: 12, reps: 12 }], notes: [], rest: null, awaitingExtra: false,
+  canLater: true,
+  swapOptions: [
+    { name: "Молотковые сгибания", muscles: "бицепс, предплечья" },
+    { name: "Сгибание рук на блоке", muscles: "бицепс" },
+    { name: "Концентрированные сгибания", muscles: "бицепс" },
+  ],
 });
 const workout = (w: ActiveWorkout) => (
-  <WorkoutScreen workout={w} busy={false} onSet={noop} onExtra={async () => true} onFinish={noop} />
+  <WorkoutScreen workout={w} busy={false} onSet={noop} onExtra={async () => true}
+    onSkip={async () => true} onSwap={async () => true} onFinish={noop} />
 );
 
 const TABS = [
@@ -89,6 +97,8 @@ export function Mockups({ name }: { name: string }) {
     case "deleted": return <Shell tabs={false}><DeletedScreen onClose={noop} /></Shell>;
     case "set": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
     case "set-bottom": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
+    case "skip": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SkipSheet name="Сгибание рук с гантелями" canLater done={1} busy={false} onClose={noop} onSkip={noop} /></Shell>;
+    case "swap": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SwapSheet name="Сгибание рук с гантелями" muscles="бицепс" options={WORKOUT(CURL).swapOptions} busy={false} onClose={noop} onSwap={noop} /></Shell>;
     case "set-noimage": return <Shell tabs={false}>{workout(WORKOUT(BENCH, "Жим штанги лёжа"))}</Shell>;
     default: return <p>Нет макета «{name}»</p>;
   }
