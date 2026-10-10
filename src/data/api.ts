@@ -1,5 +1,5 @@
 import type {
-  ActionResult, AppState, ExerciseProgress, HistoryEntry, Profile, ProfileResult, SurveyAnswers,
+  ActionResult, ChatMessage, AppState, ExerciseProgress, HistoryEntry, Profile, ProfileResult, SurveyAnswers,
 } from "@/lib/types";
 import { getParam } from "@/platform/web/location";
 import { initData } from "@/platform/web/telegram";
@@ -43,6 +43,11 @@ export type ProfileAction =
   | { name: "survey"; answers: SurveyAnswers }
   | { name: "rebuild" };
 
+// Ответ ИИ ждёт своей очереди к бесплатной модели.
+const CHAT_TIMEOUT = 180000;
+
+type Chat = { messages: ChatMessage[] };
+
 export const api = {
   state: () => request<AppState>("/api/state"),
   progress: () => request<{ exercises: ExerciseProgress[] }>("/api/progress"),
@@ -56,4 +61,9 @@ export const api = {
     const body = action.name === "survey" ? action.answers : { ...action, name: undefined };
     return request<ProfileResult>(`/api/profile/${action.name}`, body, PROFILE_TIMEOUT);
   },
+  chat: () => request<Chat>("/api/chat"),
+  chatSend: (text: string) => request<Chat>("/api/chat/send", { text }, CHAT_TIMEOUT),
+  chatNew: () => request<Chat>("/api/chat/new", {}),
+  feedback: (text: string) => request<{ message: string }>("/api/account/feedback", { text }),
+  deleteData: () => request<{ message: string; deleted: boolean }>("/api/account/delete", {}),
 };

@@ -28,6 +28,7 @@
   --color-line: var(--line);
   --color-good: #34c759;
   --color-warn: #ff9f0a;
+  --color-bad: #ff3b30;
   --text-caption: 0.8125rem;
   --text-body: 1rem;
   --text-title: 1.375rem;

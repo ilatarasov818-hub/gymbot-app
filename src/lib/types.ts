@@ -86,3 +86,5 @@ export type SurveyAnswers = {
 };
 
 export type ProfileResult = { message: string; profile: Profile; state: AppState };
+
+export type ChatMessage = { role: "user" | "assistant"; text: string };

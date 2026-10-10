@@ -8,13 +8,15 @@ import {
 import type { Profile } from "@/lib/types";
 import type { FieldKey } from "./questions";
 
-export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRestart, onCloseMessage }: {
+export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRestart, onFeedback, onDelete, onCloseMessage }: {
   profile: Profile;
   busy: boolean;
   message?: string | null;
   onEdit: (field: FieldKey) => void;
   onRebuild: () => void;
   onRestart: () => void;
+  onFeedback: () => void;
+  onDelete: () => void;
   onCloseMessage?: () => void;
 }) {
   const p = profile;
@@ -72,6 +74,11 @@ export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRes
       )}
 
       <Button variant="secondary" disabled={busy} onClick={onRestart}>Заполнить заново</Button>
+
+      <Card>
+        <Row onClick={onFeedback} left={<span className="flex items-center gap-3 text-accent"><Icon name="mail" />Написать отзыв</span>} />
+        <Row onClick={onDelete} left={<span className="flex items-center gap-3 text-bad"><Icon name="trash" />Удалить мои данные</span>} />
+      </Card>
     </div>
   );
 }

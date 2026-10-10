@@ -13,6 +13,10 @@ const PATHS = {
   chevron: "M9 6l6 6-6 6",
   close: "M6 6l12 12M18 6 6 18",
   user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
+  chat: "M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.6A8 8 0 1 1 21 12z",
+  send: "M12 19V5m-6 6 6-6 6 6",
+  mail: "M4 6h16v12H4zm0 0 8 7 8-7",
+  trash: "M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3",
 } as const;
 
 export type IconName = keyof typeof PATHS;

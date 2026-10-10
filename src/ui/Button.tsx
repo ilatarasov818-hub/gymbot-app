@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "./Icon";
 
-type Variant = "primary" | "secondary" | "plain";
+type Variant = "primary" | "secondary" | "plain" | "danger";
 const VARIANTS: Record<Variant, string> = {
   primary: "bg-accent text-accent-fg",
   secondary: "bg-bg text-accent",
   plain: "bg-transparent text-accent",
+  danger: "bg-bad text-white",
 };
 
 export function Button({ children, icon, variant = "primary", size = "lg", disabled, onClick }: {
