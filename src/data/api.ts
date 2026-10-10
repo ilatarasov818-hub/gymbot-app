@@ -2,13 +2,13 @@ import type { ActionResult, AppState, ExerciseProgress, HistoryEntry } from "@/l
 import { getParam } from "@/platform/web/location";
 import { initData } from "@/platform/web/telegram";
 
-// Адрес бота приходит в ссылке: бот сам вписывает его в кнопку приложения.
+// Страницу отдаёт сам бот, поэтому запросы идут туда же. ?api= — для разработки.
 const BASE = (getParam("api") ?? "").replace(/\/$/, "");
 
 export class ApiError extends Error {}
 
 async function request<T>(path: string, body?: unknown): Promise<T> {
-  if (!BASE || !initData()) throw new ApiError("Открой приложение кнопкой в чате с ботом.");
+  if (!initData()) throw new ApiError("Открой приложение кнопкой в чате с ботом.");
   let response: Response;
   try {
     response = await fetch(`${BASE}${path}`, {
