@@ -34,7 +34,7 @@ export function RestScreen({ workout, left, busy, onSkip, onExtend }: {
         <Button variant="secondary" icon="plus" disabled={busy} onClick={onExtend}>30 сек</Button>
         <Button icon="skip" disabled={busy} onClick={onSkip}>Пропустить</Button>
       </div>
-      <p className="text-center text-caption text-hint">Когда отдых закончится, бот пришлёт сигнал — даже если телефон заблокирован.</p>
+      <p className="text-center text-caption text-hint">Когда отдых закончится, телефон коротко завибрирует.</p>
     </div>
   );
 }
