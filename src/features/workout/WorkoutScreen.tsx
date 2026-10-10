@@ -7,6 +7,7 @@ import { Stepper } from "@/ui/Stepper";
 import { formatSet } from "@/lib/format";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
+import { ExercisePicture, HowTo } from "./ExerciseInfoView";
 
 export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
   workout: ActiveWorkout;
@@ -40,6 +41,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
           <Badge>Подход {workout.currentSet} из {ex.sets}</Badge>
           <Badge>Цель {ex.repsMin}–{ex.repsMax} повт.</Badge>
         </div>
+        {ex.info && <ExercisePicture info={ex.info} />}
         <div className="mt-6 flex flex-col gap-6">
           {!ex.bodyweight && <Stepper label="Вес" value={weight} unit="кг" step={2.5} onChange={setWeight} />}
           <Stepper label="Повторения" value={reps} onChange={setReps} />
@@ -51,6 +53,8 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
           </Button>
         </div>
       </Card>
+
+      {ex.info && ex.info.how.length > 0 && <Card title="Как делать"><HowTo info={ex.info} /></Card>}
 
       {workout.notes.length > 0 && (
         <Card title="Подсказка">
