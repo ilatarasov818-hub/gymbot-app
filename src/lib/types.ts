@@ -1,5 +1,15 @@
 export type DoneSet = { weight: number | null; reps: number };
 
+// Что показать на экране подхода: картинка, рабочие мышцы, техника.
+export type ExerciseInfo = {
+  image: string | null; // путь к картинке внутри приложения
+  main: string[]; // мышцы для схемы тела (названия react-body-highlighter)
+  help: string[];
+  mainText: string; // «грудь»
+  helpText: string; // «трицепс, передние дельты»
+  how: string[];
+};
+
 export type PlanExercise = {
   name: string;
   sets: number;
@@ -23,7 +33,7 @@ export type ActiveWorkout = {
   dayName: string;
   startedAt: string;
   index: number;
-  exercises: Omit<PlanExercise, "weight">[];
+  exercises: (Omit<PlanExercise, "weight"> & { info?: ExerciseInfo | null })[];
   currentSet: number;
   weight: number | null;
   results: DoneSet[];

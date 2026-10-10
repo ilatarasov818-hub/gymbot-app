@@ -5,7 +5,9 @@ import { EditSheet } from "@/features/profile/EditSheet";
 import { SurveyScreen } from "@/features/profile/SurveyScreen";
 import { ChatScreen } from "@/features/coach/ChatScreen";
 import { DeleteSheet, DeletedScreen, FeedbackSheet } from "@/features/profile/AccountSheets";
-import type { ChatMessage, Profile } from "@/lib/types";
+import { WorkoutScreen } from "@/features/workout/WorkoutScreen";
+import type { ActiveWorkout, ChatMessage, Profile } from "@/lib/types";
+import sampleImage from "./sample.webp";
 
 const PROFILE: Profile = {
   goal: "Масса", level: "Средний", weekdays: [0, 2, 4], duration: 60, place: "Зал", equipment: [],
@@ -24,6 +26,29 @@ const CHAT: ChatMessage[] = [
   { role: "assistant", text: "Вижу: 80 кг × 8, 8, 7 в понедельник и 80 × 8, 7, 7 в четверг. Это нормально — тело привыкает.\n\nПопробуй так:\n• следующую тренировку сделай 75 кг, но 4 подхода по 10;\n• потом снова 80 — обычно идёт легче;\n• спи 7–8 часов, без этого рост стоит." },
   { role: "user", text: "А может добавить отжимания на брусьях?" },
 ];
+
+const CURL = {
+  image: sampleImage, main: ["biceps"], help: ["forearm"],
+  mainText: "бицепс", helpText: "предплечья",
+  how: ["Локти прижаты к корпусу и не ходят вперёд.", "Поднимай на выдохе, опускай медленно — 2–3 секунды.", "Не раскачивайся: если тянет спина — вес великоват."],
+};
+const BENCH = {
+  image: null, main: ["chest"], help: ["triceps", "front-deltoids"],
+  mainText: "грудь", helpText: "трицепс, передние дельты", how: [],
+};
+const WORKOUT = (info: ActiveWorkout["exercises"][number]["info"], name = "Сгибание рук с гантелями"): ActiveWorkout => ({
+  status: "active", dayName: "Руки и плечи", startedAt: new Date(Date.now() - 23 * 60000).toISOString(), index: 2,
+  exercises: [
+    { name: "Жим гантелей сидя", sets: 3, repsMin: 8, repsMax: 12, bodyweight: false },
+    { name: "Разведения в стороны", sets: 3, repsMin: 12, repsMax: 15, bodyweight: false },
+    { name, sets: 3, repsMin: 10, repsMax: 12, bodyweight: false, info },
+    { name: "Французский жим", sets: 3, repsMin: 10, repsMax: 12, bodyweight: false },
+  ],
+  currentSet: 2, weight: 12, results: [{ weight: 12, reps: 12 }], notes: [], rest: null, awaitingExtra: false,
+});
+const workout = (w: ActiveWorkout) => (
+  <WorkoutScreen workout={w} busy={false} onSet={noop} onExtra={async () => true} onFinish={noop} />
+);
 
 const TABS = [
   { id: "home", label: "Главная", icon: "home" },
@@ -62,6 +87,9 @@ export function Mockups({ name }: { name: string }) {
     case "feedback": return <Shell>{profile()}<FeedbackSheet busy={false} onSend={noop} onClose={noop} /></Shell>;
     case "delete": return <Shell>{profile()}<DeleteSheet busy={false} onDelete={noop} onClose={noop} /></Shell>;
     case "deleted": return <Shell tabs={false}><DeletedScreen onClose={noop} /></Shell>;
+    case "set": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
+    case "set-bottom": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
+    case "set-noimage": return <Shell tabs={false}>{workout(WORKOUT(BENCH, "Жим штанги лёжа"))}</Shell>;
     default: return <p>Нет макета «{name}»</p>;
   }
 }
