@@ -5,4 +5,5 @@ export function getParam(name: string): string | null {
 export function applyTheme(theme: string | null) {
   const dark = theme ? theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
   if (dark) document.documentElement.dataset.theme = "dark";
+  else delete document.documentElement.dataset.theme;
 }

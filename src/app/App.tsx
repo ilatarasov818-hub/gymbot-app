@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { TabBar } from "@/ui/TabBar";
+import { Button } from "@/ui/Button";
+import { Centered, Notice } from "@/ui/Notice";
+import type { IconName } from "@/ui/Icon";
 import { HomeScreen } from "@/features/home/HomeScreen";
 import { WorkoutScreen } from "@/features/workout/WorkoutScreen";
 import { RestScreen } from "@/features/workout/RestScreen";
 import { FinishScreen } from "@/features/workout/FinishScreen";
+import { useRestLeft } from "@/features/workout/useRestLeft";
 import { ProgressScreen } from "@/features/progress/ProgressScreen";
 import { HistoryScreen } from "@/features/history/HistoryScreen";
-import type { IconName } from "@/ui/Icon";
+import { useAppState } from "@/data/useAppState";
 import { getParam } from "@/platform/web/location";
-import { ROUTES, type Route, type Tab } from "./routes";
+import { closeApp, confirm, haptic } from "@/platform/web/telegram";
+import { TAB_IDS, type Tab } from "./routes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "home", label: "Главная", icon: "home" },
@@ -16,25 +21,69 @@ const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "history", label: "История", icon: "list" },
 ];
 
-function initialRoute(): Route {
-  const r = getParam("screen") as Route | null;
-  return r && ROUTES.includes(r) ? r : "home";
+function initialTab(): Tab {
+  const t = getParam("screen") as Tab | null;
+  return t && TAB_IDS.includes(t) ? t : "home";
 }
 
 export function App() {
-  const [route, setRoute] = useState<Route>(initialRoute);
-  const inWorkout = route === "workout" || route === "rest" || route === "finish";
+  const [tab, setTab] = useState<Tab>(initialTab);
+  const app = useAppState();
+  const { state, busy, act } = app;
+  const workout = state?.workout?.status === "active" ? state.workout : null;
+  const restLeft = useRestLeft(workout, app.offset, () => haptic("success"));
+
+  let screen;
+  if (app.finished) {
+    screen = <FinishScreen finished={app.finished} onDone={() => { app.closeFinished(); setTab("home"); }} />;
+  } else if (!state) {
+    screen = app.error
+      ? <Centered><p>{app.error}</p><div className="w-full max-w-60"><Button variant="secondary" onClick={() => void app.refresh()}>Ещё раз</Button></div></Centered>
+      : <Centered>Загрузка…</Centered>;
+  } else if (!state.profileReady) {
+    screen = (
+      <Centered>
+        <p>Сначала ответь на несколько вопросов в чате — я соберу программу под тебя.</p>
+        <div className="w-full max-w-60"><Button onClick={closeApp}>Перейти в чат</Button></div>
+      </Centered>
+    );
+  } else if (workout && workout.rest && restLeft > 0) {
+    screen = <RestScreen workout={workout} left={restLeft} busy={busy}
+      onSkip={() => void act({ name: "skip" })} onExtend={() => void act({ name: "extend" })} />;
+  } else if (workout) {
+    screen = (
+      <WorkoutScreen key={workout.index} workout={workout} busy={busy}
+        onSet={async (weight, reps) => {
+          haptic("medium");
+          await act({ name: "set", weight, reps });
+        }}
+        onExtra={async (extra) => Boolean(await act({ name: "extra", ...extra }))}
+        onFinish={async () => {
+          if (await confirm("Закончить тренировку? Все сделанные подходы сохранятся.")) {
+            const done = await act({ name: "finish" });
+            if (done) haptic("success");
+          }
+        }} />
+    );
+  } else if (tab === "progress") {
+    screen = <ProgressScreen />;
+  } else if (tab === "history") {
+    screen = <HistoryScreen />;
+  } else {
+    screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
+      haptic("light");
+      void act({ name: "start", day });
+    }} />;
+  }
+
+  const showTabs = Boolean(state?.profileReady) && !workout && !app.finished;
   return (
     <div className="flex h-full flex-col">
-      <main className="flex-1 overflow-y-auto px-4 pb-6 pt-[max(env(safe-area-inset-top),12px)]">
-        {route === "home" && <HomeScreen onStart={() => setRoute("workout")} />}
-        {route === "workout" && <WorkoutScreen onSet={() => setRoute("rest")} onFinish={() => setRoute("finish")} />}
-        {route === "rest" && <RestScreen onSkip={() => setRoute("workout")} />}
-        {route === "finish" && <FinishScreen onDone={() => setRoute("home")} />}
-        {route === "progress" && <ProgressScreen />}
-        {route === "history" && <HistoryScreen />}
+      <main className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 pb-6 pt-[max(env(safe-area-inset-top),12px)]">
+        {state && app.error && <Notice onClose={app.clearError}>{app.error}</Notice>}
+        {screen}
       </main>
-      {!inWorkout && <TabBar tabs={TABS} value={route as Tab} onChange={setRoute} />}
+      {showTabs && <TabBar tabs={TABS} value={tab} onChange={setTab} />}
     </div>
   );
 }

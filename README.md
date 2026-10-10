@@ -1,32 +1,28 @@
-# React + TypeScript + Vite
+# Gym — мини-приложение
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Мини-приложение Telegram для бота Gym: тренировка, прогресс, история.
 
-Currently, two official plugins are available:
+- Это только страница: данных и ключей здесь нет.
+- Данные приходят от бота: его адрес бот сам вписывает в кнопку приложения (`?api=…`).
+- Каждый запрос подписан Telegram — бот проверяет, кто пишет.
+- Публикуется на GitHub Pages при каждом пуше в `main`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Запуск локально
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Вне Telegram страница покажет «Открой приложение кнопкой в чате с ботом» — это нормально.
+
+## Структура
+
+| Папка | Что внутри |
+|---|---|
+| `src/lib` | Типы и форматирование |
+| `src/data` | Запросы к боту и состояние |
+| `src/ui` | Кнопки, карточки, графики |
+| `src/platform/web` | Telegram WebApp и адресная строка |
+| `src/features` | Экраны: главная, тренировка, отдых, финиш, прогресс, история |
+| `src/app` | Сборка экранов и вкладки |
