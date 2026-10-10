@@ -6,8 +6,12 @@ export function ExercisePicture({ info }: { info: ExerciseInfo }) {
     <div className="mt-4">
       {info.image ? (
         <div className="grid grid-cols-2 items-center gap-3">
-          <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-white">
-            <img src={info.image} alt="" className="h-full w-full object-contain" />
+          <div>
+            <div className="aspect-[3/4] overflow-hidden rounded-2xl bg-white">
+              <img src={info.image} alt="" className="h-full w-full object-contain" />
+            </div>
+            {/* drawings are CC BY-SA 4.0 — attribution is required */}
+            <p className="mt-1 truncate text-center text-[9px] text-hint">рис.: everkinetic.com · CC BY-SA 4.0</p>
           </div>
           <MuscleMap main={info.main} help={info.help} />
         </div>
