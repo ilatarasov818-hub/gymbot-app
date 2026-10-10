@@ -60,12 +60,14 @@ export function App() {
       onSkip={() => void act({ name: "skip" })} onExtend={() => void act({ name: "extend" })} />;
   } else if (workout) {
     screen = (
-      <WorkoutScreen key={workout.index} workout={workout} busy={busy}
+      <WorkoutScreen key={`${workout.index}:${workout.exercises[workout.index]?.name}`} workout={workout} busy={busy}
         onSet={async (weight, reps) => {
           haptic("medium");
           await act({ name: "set", weight, reps });
         }}
         onExtra={async (extra) => Boolean(await act({ name: "extra", ...extra }))}
+        onSkip={async (later) => Boolean(await act({ name: "skipExercise", later }))}
+        onSwap={async (exercise) => Boolean(await act({ name: "swap", exercise }))}
         onFinish={async () => {
           if (await confirm("Закончить тренировку? Все сделанные подходы сохранятся.")) {
             const done = await act({ name: "finish" });
