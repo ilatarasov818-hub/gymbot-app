@@ -8,12 +8,15 @@ import { formatSet } from "@/lib/format";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
 import { ExercisePicture, HowTo } from "./ExerciseInfoView";
+import { SkipSheet, SwapSheet } from "./ExerciseSheets";
 
-export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
+export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, onFinish }: {
   workout: ActiveWorkout;
   busy: boolean;
   onSet: (weight: number, reps: number) => void;
   onExtra: (extra: Extra) => Promise<boolean>;
+  onSkip: (later: boolean) => Promise<boolean>;
+  onSwap: (exercise: string) => Promise<boolean>;
   onFinish: () => void;
 }) {
   const { exercises, index, results } = workout;
@@ -22,6 +25,8 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
   const [weight, setWeight] = useState(last?.weight ?? workout.weight ?? 0);
   const [reps, setReps] = useState(last?.reps ?? ex.repsMax);
   const [extraOpen, setExtraOpen] = useState(false);
+  const [sheet, setSheet] = useState<"skip" | "swap" | null>(null);
+  const needsWeight = !ex.bodyweight && !ex.weightOptional;
 
   return (
     <div className="flex flex-col gap-4">
@@ -47,10 +52,14 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
           <Stepper label="Повторения" value={reps} onChange={setReps} />
         </div>
         <div className="mt-6">
-          <Button icon="check" disabled={busy || reps <= 0 || (!ex.bodyweight && weight <= 0)}
+          <Button icon="check" disabled={busy || reps <= 0 || (needsWeight && weight <= 0)}
             onClick={() => onSet(ex.bodyweight ? 0 : weight, reps)}>
-            {!ex.bodyweight && weight <= 0 ? "Укажи вес" : "Записать подход"}
+            {needsWeight && weight <= 0 ? "Укажи вес" : "Записать подход"}
           </Button>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <Button variant="plain" size="md" icon="swap" disabled={busy} onClick={() => setSheet("swap")}>Заменить</Button>
+          <Button variant="plain" size="md" icon="skip" disabled={busy} onClick={() => setSheet("skip")}>Пропустить</Button>
         </div>
       </Card>
 
@@ -78,6 +87,14 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onFinish }: {
         <Button variant="secondary" size="md" icon="flag" disabled={busy} onClick={onFinish}>Финиш</Button>
       </div>
 
+      {sheet === "skip" && (
+        <SkipSheet name={ex.name} canLater={workout.canLater} done={results.length} busy={busy}
+          onClose={() => setSheet(null)} onSkip={async (later) => { if (await onSkip(later)) setSheet(null); }} />
+      )}
+      {sheet === "swap" && (
+        <SwapSheet name={ex.name} muscles={ex.info?.mainText ?? ""} options={workout.swapOptions} busy={busy}
+          onClose={() => setSheet(null)} onSwap={async (exercise) => { if (await onSwap(exercise)) setSheet(null); }} />
+      )}
       {extraOpen && (
         <ExtraSheet busy={busy} onClose={() => setExtraOpen(false)}
           onSave={async (extra) => { if (await onExtra(extra)) setExtraOpen(false); }} />

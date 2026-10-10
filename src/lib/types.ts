@@ -33,14 +33,19 @@ export type ActiveWorkout = {
   dayName: string;
   startedAt: string;
   index: number;
-  exercises: (Omit<PlanExercise, "weight"> & { info?: ExerciseInfo | null })[];
+  // weightOptional — своё упражнение вместо программы: можно и с весом, и без.
+  exercises: (Omit<PlanExercise, "weight"> & { info?: ExerciseInfo | null; weightOptional?: boolean })[];
   currentSet: number;
   weight: number | null;
   results: DoneSet[];
   notes: string[];
   rest: { endsAt: number; total: number } | null;
   awaitingExtra: boolean;
+  canLater: boolean; // текущее упражнение можно отложить в конец
+  swapOptions: SwapOption[]; // похожие упражнения для замены текущего
 };
+
+export type SwapOption = { name: string; muscles: string };
 
 export type Workout = ActiveWorkout | { status: "pending"; day: number } | { status: "free" };
 
