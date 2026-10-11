@@ -64,6 +64,7 @@ export type AppState = {
   stats: { monthWorkouts: number; streakWeeks: number };
   week: DayPlan[];
   workout: Workout | null;
+  summary?: WeekSummary | null;
 };
 
 export type MedalLevel = 0 | 1 | 2 | 3;
@@ -93,7 +94,19 @@ export type ProgressPoint = { date: string; weight: number; reps: number };
 
 export type ExerciseProgress = { name: string; points: ProgressPoint[] };
 
-export type ProgressData = { exercises: ExerciseProgress[]; achievements: Achievement[] };
+export type BodyPoint = { date: string; weight: number }; // вес тела, кг
+
+export type ProgressData = { exercises: ExerciseProgress[]; achievements: Achievement[]; body?: BodyPoint[] };
+
+// Итог недели: с вечера воскресенья до конца понедельника.
+export type WeekSummary = {
+  done: number;
+  planned: number;
+  records: { name: string; weight: number }[];
+  stalled: { name: string; weight: number; weeks: number }[];
+  body: { weight: number; delta: number | null } | null;
+  advice: string;
+};
 
 export type HistoryEntry = {
   date: string;

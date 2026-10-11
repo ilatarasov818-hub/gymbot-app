@@ -6,6 +6,7 @@ import { Icon } from "@/ui/Icon";
 import { Stepper } from "@/ui/Stepper";
 import { formatSet } from "@/lib/format";
 import { showKg, toKg, unitName, weightStep } from "@/lib/units";
+import { minutesLeft } from "@/lib/eta";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
 import { ExercisePicture, HowTo } from "./ExerciseInfoView";
@@ -37,7 +38,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
             <span key={i} className={`h-1.5 w-6 rounded-full ${i < index ? "bg-good" : i === index ? "bg-accent" : "bg-line"}`} />
           ))}
         </div>
-        <Elapsed since={workout.startedAt} />
+        <Elapsed workout={workout} />
       </header>
 
       <Card>
@@ -104,14 +105,19 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
   );
 }
 
-function Elapsed({ since }: { since: string }) {
+function Elapsed({ workout }: { workout: ActiveWorkout }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const seconds = Math.max(0, Math.floor((now - new Date(since).getTime()) / 1000));
+  const seconds = Math.max(0, Math.floor((now - new Date(workout.startedAt).getTime()) / 1000));
+  const left = minutesLeft(workout, seconds);
   const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
   const text = h ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${m}:${String(s).padStart(2, "0")}`;
-  return <span className="flex items-center gap-1 text-caption tabular-nums text-hint"><Icon name="timer" size={16} />{text}</span>;
+  return (
+    <span className="flex shrink-0 items-center gap-1 text-caption tabular-nums text-hint">
+      <Icon name="timer" size={16} />{text}{left > 0 && <span> · ещё ~{left} мин</span>}
+    </span>
+  );
 }
