@@ -69,7 +69,7 @@ export function ProfileScreen({ profile, me, busy, message, onSettings, onEdit, 
         </Notice>
       )}
 
-      <Card title="Ответы">
+      <Card title="Данные">
         {rows.map(([key, label, value]) => (
           <Row key={key} onClick={() => onEdit(key)} left={label} right={
               <span className="flex max-w-48 items-center gap-1">
