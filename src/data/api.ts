@@ -1,6 +1,4 @@
-import type {
-  ActionResult, ChatMessage, AppState, ExerciseProgress, HistoryEntry, Profile, ProfileResult, SurveyAnswers,
-} from "@/lib/types";
+import type { ActionResult, AppState, ChatMessage, HistoryEntry, Profile, ProfileResult, ProgressData, SurveyAnswers } from "@/lib/types";
 import { getParam } from "@/platform/web/location";
 import { inTelegram, initData } from "@/platform/web/telegram";
 import { getToken, setToken } from "./session";
@@ -68,7 +66,7 @@ type Chat = { messages: ChatMessage[] };
 
 export const api = {
   state: () => request<AppState>("/api/state"),
-  progress: () => request<{ exercises: ExerciseProgress[] }>("/api/progress"),
+  progress: () => request<ProgressData>("/api/progress"),
   history: () => request<{ workouts: HistoryEntry[] }>("/api/history"),
   act: ({ name, ...body }: Action) => {
     const payload = name === "extra" && "title" in body ? { ...body, name: body.title } : body;

@@ -1,3 +1,5 @@
+import type { MedalIcon } from "@/ui/Medal";
+
 export type ThemePref = "auto" | "light" | "dark";
 export type Accent = "blue" | "green" | "orange" | "red" | "purple" | "pink";
 
@@ -63,13 +65,34 @@ export type AppState = {
   workout: Workout | null;
 };
 
-export type Finished = { title: string; duration: string; sets: number; volume: number; report: string };
+export type MedalLevel = 0 | 1 | 2 | 3;
+
+export type Achievement = {
+  id: string;
+  icon: MedalIcon;
+  title: string;
+  about: string;
+  level: MedalLevel;          // 0 — ещё нет, 1 бронза, 2 серебро, 3 золото
+  levels: string[];           // пороги уровней: «1 неделя», «4 подряд», «12 подряд» (у разовых — один)
+  progress: number;           // сколько есть сейчас к следующему уровню
+  target: number | null;      // сколько нужно для следующего; null — всё собрано
+  unit: string;               // «недель подряд», «т»
+};
+
+export type NewAchievement = { icon: MedalIcon; title: string; level: MedalLevel; levelText: string };
+
+export type Finished = {
+  title: string; duration: string; sets: number; volume: number; report: string;
+  achievements?: NewAchievement[];
+};
 
 export type ActionResult = { message: string; finished?: Finished | null; state: AppState };
 
 export type ProgressPoint = { date: string; weight: number; reps: number };
 
 export type ExerciseProgress = { name: string; points: ProgressPoint[] };
+
+export type ProgressData = { exercises: ExerciseProgress[]; achievements: Achievement[] };
 
 export type HistoryEntry = {
   date: string;

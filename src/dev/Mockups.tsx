@@ -7,7 +7,10 @@ import { ChatScreen } from "@/features/coach/ChatScreen";
 import { DeleteSheet, DeletedScreen, FeedbackSheet } from "@/features/profile/AccountSheets";
 import { WorkoutScreen } from "@/features/workout/WorkoutScreen";
 import { SkipSheet, SwapSheet } from "@/features/workout/ExerciseSheets";
-import type { ActiveWorkout, ChatMessage, Profile } from "@/lib/types";
+import { ProgressView } from "@/features/progress/ProgressScreen";
+import { AchievementsCard } from "@/features/progress/Achievements";
+import { FinishScreen } from "@/features/workout/FinishScreen";
+import type { Achievement, ActiveWorkout, ChatMessage, Profile } from "@/lib/types";
 import sampleImage from "./sample.webp";
 
 const PROFILE: Profile = {
@@ -21,6 +24,17 @@ const PROFILE: Profile = {
 };
 
 const noop = () => {};
+
+const ACH: Achievement[] = [
+  { id: "perfect", icon: "calendar", title: "Идеальная неделя", about: "Все запланированные тренировки за неделю. Уровни — недели подряд.", level: 1, levels: ["1 неделя", "4 подряд", "12 подряд"], progress: 2, target: 4, unit: "нед." },
+  { id: "streak", icon: "flame", title: "Серия", about: "Недели подряд, в которые была хотя бы одна тренировка.", level: 1, levels: ["4 недели", "12 недель", "26 недель"], progress: 5, target: 12, unit: "нед." },
+  { id: "workouts", icon: "dumbbell", title: "Тренировки", about: "Сколько всего тренировок сделано.", level: 1, levels: ["10", "50", "100"], progress: 23, target: 50, unit: "трен." },
+  { id: "records", icon: "chart", title: "Рекорды", about: "Новый лучший вес в упражнении — это рекорд.", level: 2, levels: ["1 рекорд", "10 рекордов", "50 рекордов"], progress: 14, target: 50, unit: "рек." },
+  { id: "tonnage", icon: "stack", title: "Всего поднято", about: "Вес × повторения по всем подходам.", level: 1, levels: ["10 т", "100 т", "1000 т"], progress: 38.5, target: 100, unit: "т" },
+  { id: "early", icon: "sunrise", title: "Ранняя пташка", about: "Тренировки, начатые до 8 утра.", level: 0, levels: ["1 раз", "10 раз", "30 раз"], progress: 0, target: 1, unit: "раз" },
+  { id: "night", icon: "moon", title: "Ночная смена", about: "Тренировки, начатые после 22:00.", level: 1, levels: ["1 раз", "10 раз", "30 раз"], progress: 1, target: 10, unit: "раз" },
+];
+const POINTS = [60, 62.5, 62.5, 65, 67.5, 70].map((weight, i) => ({ date: `2026-09-${String(7 + 4 * i).padStart(2, "0")}`, weight, reps: 8 }));
 
 const CHAT: ChatMessage[] = [
   { role: "user", text: "Жим застрял на 80 кг уже две недели. Что делать?" },
@@ -99,6 +113,11 @@ export function Mockups({ name }: { name: string }) {
     case "set-bottom": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
     case "skip": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SkipSheet name="Сгибание рук с гантелями" canLater done={1} busy={false} onClose={noop} onSkip={noop} /></Shell>;
     case "swap": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SwapSheet name="Сгибание рук с гантелями" muscles="бицепс" options={WORKOUT(CURL).swapOptions} busy={false} onClose={noop} onSwap={noop} /></Shell>;
+    case "achievements": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }, { name: "Приседания", points: POINTS }], achievements: ACH }} picked={null} onPick={noop} /></Shell>;
+    case "achievements-new": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })) }} picked={null} onPick={noop} /></Shell>;
+    case "achievement": return <Shell tab="progress"><h1 className="pt-2 text-[28px] font-bold">Прогресс</h1><AchievementsCard items={ACH} openId="perfect" /></Shell>;
+    case "finish-ach": return <Shell tabs={false}><FinishScreen onDone={noop} finished={{ title: "Full Body A", duration: "52 мин", sets: 18, volume: 6240, report: "📊 Итог тренировки\n⏱ Время: 52 мин\n📈 Прогресс:\n• Жим лёжа: вес 67.5 → 70 кг",
+      achievements: [{ icon: "calendar", title: "Идеальная неделя", level: 1, levelText: "1 неделя" }, { icon: "chart", title: "Рекорды", level: 2, levelText: "10 рекордов" }] }} /></Shell>;
     case "set-noimage": return <Shell tabs={false}>{workout(WORKOUT(BENCH, "Жим штанги лёжа"))}</Shell>;
     default: return <p>Нет макета «{name}»</p>;
   }

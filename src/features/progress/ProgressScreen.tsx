@@ -8,16 +8,29 @@ import { formatSet, shortDay } from "@/lib/format";
 import { progressSummary } from "@/lib/progress";
 import { api } from "@/data/api";
 import { useLoad } from "@/data/useAppState";
+import type { ProgressData } from "@/lib/types";
+import { AchievementsCard } from "./Achievements";
 
 export function ProgressScreen() {
   const { data, error } = useLoad(api.progress);
   const [picked, setPicked] = useState<string | null>(null);
   if (error) return <Notice>{error}</Notice>;
   if (!data) return <Centered>Загрузка…</Centered>;
+  return <ProgressView data={data} picked={picked} onPick={setPicked} />;
+}
 
+export function ProgressView({ data, picked, onPick }: {
+  data: ProgressData; picked: string | null; onPick: (name: string) => void;
+}) {
   const exercises = data.exercises.filter((e) => e.points.length > 0);
   if (exercises.length === 0) {
-    return <Centered>Здесь появятся графики рабочих весов после первой тренировки.</Centered>;
+    return (
+      <div className="flex flex-col gap-4">
+        <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
+        <AchievementsCard items={data.achievements} />
+        <p className="text-center text-caption text-hint">Здесь появятся графики рабочих весов после первой тренировки.</p>
+      </div>
+    );
   }
   const current = exercises.find((e) => e.name === picked) ?? exercises[0];
   const points = current.points;
@@ -26,7 +39,8 @@ export function ProgressScreen() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
-      <Chips items={exercises.map((e) => e.name)} value={current.name} onChange={setPicked} />
+      <AchievementsCard items={data.achievements} />
+      <Chips items={exercises.map((e) => e.name)} value={current.name} onChange={onPick} />
       <Card>
         <div className="flex items-end justify-between gap-2">
           <div>
