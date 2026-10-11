@@ -101,7 +101,7 @@ export function Mockups({ name }: { name: string }) {
   );
   const settings = (me: Me = ME) => (
     <SettingsScreen me={me} theme="auto" onTheme={noop} accent="blue" onAccent={noop} onBack={noop} onAvatar={noop}
-      onEdit={noop} onSex={noop} onUnits={noop} onFeedback={noop} onDelete={noop} onLogout={noop} />
+      onEdit={noop} onSex={noop} onUnits={noop} onFeedback={noop} onReset={noop} onDelete={noop} onLogout={noop} />
   );
   switch (name) {
     case "profile": return <Shell>{profile()}</Shell>;

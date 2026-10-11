@@ -20,7 +20,7 @@ const Value = ({ children }: { children: ReactNode }) => (
   <span className="flex max-w-48 items-center gap-1"><span className="truncate">{children}</span><Icon name="chevron" size={16} /></span>
 );
 
-export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onDelete, onLogout, install, message, onCloseMessage }: {
+export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, message, onCloseMessage }: {
   me: Me;
   theme: ThemePref;
   onTheme: (theme: ThemePref) => void;
@@ -32,6 +32,7 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, o
   onSex: (sex: Sex) => void;
   onUnits: (units: Units) => void;
   onFeedback: () => void;
+  onReset: () => void;
   onDelete: () => void;
   onLogout?: () => void;
   install?: ReactNode;
@@ -92,6 +93,7 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, o
         {onLogout && (
           <Row onClick={onLogout} left={<span className="flex items-center gap-3 text-accent"><Icon name="logout" />Выйти</span>} />
         )}
+        <Row onClick={onReset} left={<span className="flex items-center gap-3 text-bad"><Icon name="chart" />Сбросить историю тренировок</span>} />
         <Row onClick={onDelete} left={<span className="flex items-center gap-3 text-bad"><Icon name="trash" />Удалить мои данные</span>} />
       </Card>
     </div>
