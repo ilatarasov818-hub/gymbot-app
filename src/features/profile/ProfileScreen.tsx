@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/ui/Button";
 import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
@@ -22,6 +23,7 @@ export function ProfileScreen({ profile, me, busy, message, onSettings, onEdit, 
   onCloseMessage?: () => void;
 }) {
   const p = profile;
+  const [open, setOpen] = useState(false);
   const rows: [FieldKey, string, string][] = [
     ["goal", "Цель", labelOf(GOALS, p.goal)],
     ["level", "Опыт", labelOf(LEVELS, p.level)],
@@ -70,13 +72,24 @@ export function ProfileScreen({ profile, me, busy, message, onSettings, onEdit, 
       )}
 
       <Card title="Данные">
-        {rows.map(([key, label, value]) => (
-          <Row key={key} onClick={() => onEdit(key)} left={label} right={
-              <span className="flex max-w-48 items-center gap-1">
-                <span className="truncate">{value}</span>
-                <Icon name="chevron" size={16} />
-              </span>} />
-        ))}
+        <button type="button" aria-expanded={open} onClick={() => setOpen(!open)}
+          className="flex w-full items-center justify-between gap-3 text-left">
+          <span className="min-w-0 truncate text-body">{rows.slice(0, 3).map(([, , value]) => value).join(" · ")}</span>
+          <span className={`shrink-0 text-hint transition-transform ${open ? "-rotate-90" : "rotate-90"}`}>
+            <Icon name="chevron" size={20} />
+          </span>
+        </button>
+        {open && (
+          <div className="mt-3 border-t border-line pt-3">
+            {rows.map(([key, label, value]) => (
+              <Row key={key} onClick={() => onEdit(key)} left={label} right={
+                  <span className="flex max-w-48 items-center gap-1">
+                    <span className="truncate">{value}</span>
+                    <Icon name="chevron" size={16} />
+                  </span>} />
+            ))}
+          </div>
+        )}
       </Card>
 
       {p.replacements.length > 0 && (
