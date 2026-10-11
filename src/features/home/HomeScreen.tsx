@@ -3,7 +3,8 @@ import { Button } from "@/ui/Button";
 import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { formatWeight, plural } from "@/lib/format";
-import type { AppState, DayPlan } from "@/lib/types";
+import type { AppState, DayPlan, PlanExercise } from "@/lib/types";
+import { ExerciseSheet } from "./ExerciseSheet";
 
 function defaultDay(week: DayPlan[]): DayPlan | undefined {
   const todayIndex = week.findIndex((d) => d.today);
@@ -16,6 +17,7 @@ export function HomeScreen({ state, busy, onStart }: {
   state: AppState; busy: boolean; onStart: (day: number) => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
+  const [shown, setShown] = useState<PlanExercise | null>(null);
   const day = state.week.find((d) => d.day === picked) ?? defaultDay(state.week);
   const { stats } = state;
   const restDay = !state.week.some((d) => d.today);
@@ -37,9 +39,10 @@ export function HomeScreen({ state, busy, onStart }: {
 
       {day && (
         <Card title={day.today ? "Сегодня" : picked === null && restDay ? "Сегодня отдых · следующая" : day.weekday}>
-          <h2 className="mb-3 text-title font-bold">{day.title}</h2>
+          <h2 className="text-title font-bold">{day.title}</h2>
+          <p className="mb-3 text-caption text-hint">Нажми на упражнение — покажу технику</p>
           {day.exercises.map((ex) => (
-            <Row key={ex.name} left={ex.name}
+            <Row key={ex.name} left={ex.name} onClick={() => setShown(ex)}
               sub={`${ex.sets} × ${ex.repsMin}–${ex.repsMax}`}
               right={ex.bodyweight ? "свой вес" : ex.weight ? formatWeight(ex.weight) : "подберём"} />
           ))}
@@ -61,6 +64,8 @@ export function HomeScreen({ state, busy, onStart }: {
                 : <Icon name="chevron" size={18} />} />
         ))}
       </Card>
+
+      {shown && <ExerciseSheet exercise={shown} onClose={() => setShown(null)} />}
     </div>
   );
 }
