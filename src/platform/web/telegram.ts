@@ -13,6 +13,9 @@ type TelegramWebApp = {
   showConfirm?: (message: string, cb: (ok: boolean) => void) => void;
   disableVerticalSwipes?: () => void;
   openLink?: (url: string) => void;
+  setHeaderColor?: (color: string) => void;
+  setBackgroundColor?: (color: string) => void;
+  setBottomBarColor?: (color: string) => void;
   HapticFeedback?: {
     impactOccurred: (style: HapticImpact) => void;
     notificationOccurred: (type: HapticNotice) => void;
@@ -44,6 +47,19 @@ export function startTelegram(onTheme: (scheme: "light" | "dark") => void) {
   app.disableVerticalSwipes?.();
   onTheme(app.colorScheme);
   app.onEvent("themeChanged", () => onTheme(app.colorScheme));
+}
+
+// Верх и низ окна Telegram — в цвет своей темы; в «авто» возвращаем цвета Telegram.
+export function setChromeColors(bg: string, surface: string, fixed: boolean) {
+  const app = tg();
+  if (!app || !inTelegram()) return;
+  try {
+    app.setHeaderColor?.(fixed ? bg : "bg_color");
+    app.setBackgroundColor?.(fixed ? surface : "secondary_bg_color");
+    app.setBottomBarColor?.(fixed ? bg : "bottom_bar_bg_color");
+  } catch {
+    // старый Telegram — не страшно
+  }
 }
 
 const VIBRATION: Record<HapticImpact | HapticNotice, number | number[]> = {

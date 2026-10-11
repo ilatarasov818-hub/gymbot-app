@@ -3,16 +3,29 @@ import { Button } from "@/ui/Button";
 import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Notice } from "@/ui/Notice";
+import { Segmented } from "@/ui/Segmented";
+import { Swatches } from "@/ui/Swatches";
+import { ACCENTS } from "@/lib/accents";
 import {
   DURATIONS, GOALS, HOME, LEVELS, daysText, hasDumbbells, labelOf, placeText, stepText,
 } from "@/lib/profile";
-import type { Profile } from "@/lib/types";
+import type { Accent, Profile, ThemePref } from "@/lib/types";
 import type { FieldKey } from "./questions";
 
-export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRestart, onFeedback, onDelete, onLogout, onCloseMessage, install }: {
+const THEMES: { value: ThemePref; label: string }[] = [
+  { value: "auto", label: "Авто" },
+  { value: "light", label: "Светлая" },
+  { value: "dark", label: "Тёмная" },
+];
+
+export function ProfileScreen({ profile, busy, message, theme, onTheme, accent, onAccent, onEdit, onRebuild, onRestart, onFeedback, onDelete, onLogout, onCloseMessage, install }: {
   profile: Profile;
   busy: boolean;
   message?: string | null;
+  theme: ThemePref;
+  onTheme: (theme: ThemePref) => void;
+  accent: Accent;
+  onAccent: (accent: Accent) => void;
   onEdit: (field: FieldKey) => void;
   onRebuild: () => void;
   onRestart: () => void;
@@ -77,6 +90,13 @@ export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRes
       )}
 
       <Button variant="secondary" disabled={busy} onClick={onRestart}>Заполнить заново</Button>
+
+      <Card title="Оформление">
+        <Segmented options={THEMES} value={theme} onPick={onTheme} />
+        {theme === "auto" && <p className="mt-2 text-caption text-hint">Как в Telegram.</p>}
+        <p className="mb-3 mt-5 text-caption font-semibold uppercase tracking-wide text-hint">Цвет</p>
+        <Swatches options={ACCENTS} value={accent} onPick={onAccent} />
+      </Card>
 
       <Card>
         <Row onClick={onFeedback} left={<span className="flex items-center gap-3 text-accent"><Icon name="mail" />Написать отзыв</span>} />

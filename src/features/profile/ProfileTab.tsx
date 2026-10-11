@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Centered, Notice } from "@/ui/Notice";
 import { api, type ProfileAction } from "@/data/api";
 import { haptic } from "@/platform/web/telegram";
+import { accentPref, setAccentPref, setThemePref, themePref } from "@/platform/web/theme";
+import { DEFAULT_ACCENT } from "@/lib/accents";
 import type { Profile, ProfileResult } from "@/lib/types";
 import { DeleteSheet, FeedbackSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
@@ -28,6 +30,8 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
   const [account, setAccount] = useState<Account | null>(null);
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountError, setAccountError] = useState<string | null>(null);
+  const [theme, setTheme] = useState(themePref);
+  const [accent, setAccent] = useState(() => accentPref() ?? DEFAULT_ACCENT);
 
   useEffect(() => {
     api.profile().then(setProfile, (e: Error) => setError(e.message));
@@ -85,6 +89,8 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
   return (
     <>
       <ProfileScreen profile={profile} busy={busy} message={message}
+        theme={theme} onTheme={(t) => { setThemePref(t); setTheme(t); haptic("light"); }}
+        accent={accent} onAccent={(a) => { setAccentPref(a); setAccent(a); haptic("light"); }}
         onCloseMessage={() => setMessage(null)}
         onEdit={setEditing}
         onRebuild={() => void run({ name: "rebuild" })}

@@ -2,12 +2,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "@/app/App";
-import { applyTheme, getParam } from "@/platform/web/location";
+import { getParam } from "@/platform/web/location";
+import { initTheme, setTelegramScheme } from "@/platform/web/theme";
 import { startTelegram } from "@/platform/web/telegram";
 import { registerServiceWorker } from "@/platform/web/install";
 
-applyTheme(getParam("theme"));
-startTelegram((scheme) => applyTheme(getParam("theme") ?? scheme));
+initTheme(getParam("theme"));
+startTelegram(setTelegramScheme);
 registerServiceWorker();
 
 const root = createRoot(document.getElementById("root")!);

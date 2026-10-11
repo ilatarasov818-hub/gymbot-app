@@ -77,7 +77,7 @@ function Shell({ children, tabs = true, tab = "profile" }: { children: React.Rea
 
 export function Mockups({ name }: { name: string }) {
   const profile = (patch: Partial<Profile> = {}, message?: string) => (
-    <ProfileScreen profile={{ ...PROFILE, ...patch }} busy={false} message={message}
+    <ProfileScreen profile={{ ...PROFILE, ...patch }} busy={false} message={message} theme="auto" onTheme={noop} accent="blue" onAccent={noop}
       onEdit={noop} onRebuild={noop} onRestart={noop} onFeedback={noop} onDelete={noop} />
   );
   switch (name) {
