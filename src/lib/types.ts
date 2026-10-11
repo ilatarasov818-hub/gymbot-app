@@ -52,6 +52,7 @@ export type Workout = ActiveWorkout | { status: "pending"; day: number } | { sta
 export type AppState = {
   user: { name: string };
   profileReady: boolean;
+  installUrl: string | null; // постоянный адрес — по нему приложение ставят на экран телефона
   today: string;
   serverTime: number;
   stats: { monthWorkouts: number; streakWeeks: number };

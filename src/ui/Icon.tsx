@@ -18,6 +18,8 @@ const PATHS = {
   send: "M12 19V5m-6 6 6-6 6 6",
   mail: "M4 6h16v12H4zm0 0 8 7 8-7",
   trash: "M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3",
+  phone: "M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm3 17h2",
+  logout: "M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h10",
 } as const;
 
 export type IconName = keyof typeof PATHS;

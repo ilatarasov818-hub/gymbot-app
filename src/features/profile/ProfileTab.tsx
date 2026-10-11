@@ -5,16 +5,19 @@ import { haptic } from "@/platform/web/telegram";
 import type { Profile, ProfileResult } from "@/lib/types";
 import { DeleteSheet, FeedbackSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
+import { InstallCard } from "@/features/install/InstallCard";
 import { ProfileScreen } from "./ProfileScreen";
 import { SurveyScreen } from "./SurveyScreen";
 import { profileDraft, type Draft, type FieldKey } from "./questions";
 
 type Account = "feedback" | "delete";
 
-export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
+export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout, onDeleted }: {
   busy: boolean;
   error: string | null;
   save: (action: ProfileAction) => Promise<ProfileResult | null>;
+  installUrl: string | null;
+  onLogout?: () => void;
   onDeleted: () => void;
 }) {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -87,7 +90,9 @@ export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
         onRebuild={() => void run({ name: "rebuild" })}
         onRestart={() => { setMessage(null); setRestart(true); }}
         onFeedback={() => openAccount("feedback")}
-        onDelete={() => openAccount("delete")} />
+        onDelete={() => openAccount("delete")}
+        onLogout={onLogout}
+        install={<InstallCard installUrl={installUrl} />} />
       {account === "feedback" && (
         <FeedbackSheet busy={accountBusy} error={accountError} onSend={(text) => void sendFeedback(text)}
           onClose={() => openAccount(null)} />
