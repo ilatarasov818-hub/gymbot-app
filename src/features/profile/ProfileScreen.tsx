@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Button } from "@/ui/Button";
 import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
@@ -8,7 +9,7 @@ import {
 import type { Profile } from "@/lib/types";
 import type { FieldKey } from "./questions";
 
-export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRestart, onFeedback, onDelete, onCloseMessage }: {
+export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRestart, onFeedback, onDelete, onLogout, onCloseMessage, install }: {
   profile: Profile;
   busy: boolean;
   message?: string | null;
@@ -17,7 +18,9 @@ export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRes
   onRestart: () => void;
   onFeedback: () => void;
   onDelete: () => void;
+  onLogout?: () => void;
   onCloseMessage?: () => void;
+  install?: ReactNode;
 }) {
   const p = profile;
   const rows: [FieldKey, string, string][] = [
@@ -77,8 +80,13 @@ export function ProfileScreen({ profile, busy, message, onEdit, onRebuild, onRes
 
       <Card>
         <Row onClick={onFeedback} left={<span className="flex items-center gap-3 text-accent"><Icon name="mail" />Написать отзыв</span>} />
+        {onLogout && (
+          <Row onClick={onLogout} left={<span className="flex items-center gap-3 text-accent"><Icon name="logout" />Выйти</span>} />
+        )}
         <Row onClick={onDelete} left={<span className="flex items-center gap-3 text-bad"><Icon name="trash" />Удалить мои данные</span>} />
       </Card>
+
+      {install}
     </div>
   );
 }

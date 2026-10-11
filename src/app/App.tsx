@@ -14,10 +14,13 @@ import { ProfileTab } from "@/features/profile/ProfileTab";
 import { SurveyScreen } from "@/features/profile/SurveyScreen";
 import { DeletedScreen } from "@/features/profile/AccountSheets";
 import { CoachTab } from "@/features/coach/CoachTab";
+import { LoginScreen } from "@/features/login/LoginScreen";
+import { api } from "@/data/api";
+import { setToken, useToken } from "@/data/session";
 import { useAppState } from "@/data/useAppState";
 import { useChat } from "@/data/useChat";
 import { getParam } from "@/platform/web/location";
-import { closeApp, confirm, haptic } from "@/platform/web/telegram";
+import { closeApp, confirm, haptic, inTelegram } from "@/platform/web/telegram";
 import { TAB_IDS, type Tab } from "./routes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -33,7 +36,20 @@ function initialTab(): Tab {
   return t && TAB_IDS.includes(t) ? t : "home";
 }
 
+// Вне Telegram сначала вход: ключ приложения выдаёт бот.
 export function App() {
+  const token = useToken();
+  if (!inTelegram() && !token) {
+    return <main className="flex h-full flex-col overflow-y-auto px-4 pb-6 pt-[max(env(safe-area-inset-top),12px)]"><LoginScreen /></main>;
+  }
+  return <Main key={token ?? "telegram"} />;
+}
+
+function logout() {
+  void api.logout().catch(() => undefined).finally(() => setToken(null));
+}
+
+function Main() {
   const [tab, setTab] = useState<Tab>(initialTab);
   const app = useAppState();
   const chat = useChat();
@@ -44,7 +60,7 @@ export function App() {
 
   let screen;
   if (deleted) {
-    screen = <DeletedScreen onClose={closeApp} />;
+    screen = <DeletedScreen onClose={inTelegram() ? closeApp : () => setToken(null)} />;
   } else if (app.finished) {
     screen = <FinishScreen finished={app.finished} onDone={() => { app.closeFinished(); setTab("home"); }} />;
   } else if (!state) {
@@ -82,7 +98,8 @@ export function App() {
   } else if (tab === "history") {
     screen = <HistoryScreen />;
   } else if (tab === "profile") {
-    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} onDeleted={() => setDeleted(true)} />;
+    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} installUrl={state.installUrl}
+      onLogout={inTelegram() ? undefined : logout} onDeleted={() => setDeleted(true)} />;
   } else {
     screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
       haptic("light");

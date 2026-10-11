@@ -12,6 +12,7 @@ type TelegramWebApp = {
   onEvent: (event: string, cb: () => void) => void;
   showConfirm?: (message: string, cb: (ok: boolean) => void) => void;
   disableVerticalSwipes?: () => void;
+  openLink?: (url: string) => void;
   HapticFeedback?: {
     impactOccurred: (style: HapticImpact) => void;
     notificationOccurred: (type: HapticNotice) => void;
@@ -30,6 +31,11 @@ export function initData(): string {
   return tg()?.initData ?? "";
 }
 
+// Открыто внутри Telegram: тогда Telegram сам говорит боту, кто это.
+export function inTelegram(): boolean {
+  return Boolean(initData());
+}
+
 export function startTelegram(onTheme: (scheme: "light" | "dark") => void) {
   const app = tg();
   if (!app) return;
@@ -40,9 +46,16 @@ export function startTelegram(onTheme: (scheme: "light" | "dark") => void) {
   app.onEvent("themeChanged", () => onTheme(app.colorScheme));
 }
 
+const VIBRATION: Record<HapticImpact | HapticNotice, number | number[]> = {
+  light: 10, medium: 20, heavy: 30, success: [20, 60, 20], warning: 40, error: [40, 60, 40],
+};
+
 export function haptic(kind: HapticImpact | HapticNotice) {
-  const h = tg()?.HapticFeedback;
-  if (!h) return;
+  const h = inTelegram() ? tg()?.HapticFeedback : undefined;
+  if (!h) {
+    navigator.vibrate?.(VIBRATION[kind]);
+    return;
+  }
   if (kind === "success" || kind === "warning" || kind === "error") h.notificationOccurred(kind);
   else h.impactOccurred(kind);
 }
@@ -57,6 +70,13 @@ export function confirm(message: string): Promise<boolean> {
 
 export function closeApp() {
   tg()?.close();
+}
+
+// Ссылка наружу: из Telegram — в браузер телефона, иначе — в новой вкладке.
+export function openLink(url: string) {
+  const app = tg();
+  if (app?.openLink && inTelegram()) app.openLink(url);
+  else window.open(url, "_blank", "noopener");
 }
 
 export function onVisible(cb: () => void): () => void {

@@ -4,9 +4,11 @@ import "./index.css";
 import { App } from "@/app/App";
 import { applyTheme, getParam } from "@/platform/web/location";
 import { startTelegram } from "@/platform/web/telegram";
+import { registerServiceWorker } from "@/platform/web/install";
 
 applyTheme(getParam("theme"));
 startTelegram((scheme) => applyTheme(getParam("theme") ?? scheme));
+registerServiceWorker();
 
 const root = createRoot(document.getElementById("root")!);
 const mock = getParam("mock");
