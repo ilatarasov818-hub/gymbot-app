@@ -1,3 +1,6 @@
+export type ThemePref = "auto" | "light" | "dark";
+export type Accent = "blue" | "green" | "orange" | "red" | "purple" | "pink";
+
 export type DoneSet = { weight: number | null; reps: number };
 
 // Что показать на экране подхода: картинка, рабочие мышцы, техника.
