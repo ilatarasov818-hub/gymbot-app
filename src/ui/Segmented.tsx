@@ -1,6 +1,6 @@
 /** Переключатель из нескольких вариантов в одну строку. */
 export function Segmented<T extends string>({ options, value, onPick }: {
-  options: { value: T; label: string }[]; value: T; onPick: (value: T) => void;
+  options: { value: T; label: string }[]; value: T | null; onPick: (value: T) => void;
 }) {
   return (
     <div className="flex rounded-xl bg-surface p-1">

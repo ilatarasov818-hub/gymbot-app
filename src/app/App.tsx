@@ -1,3 +1,4 @@
+import { setUnits } from "@/lib/units";
 import { useState } from "react";
 import { TabBar } from "@/ui/TabBar";
 import { Button } from "@/ui/Button";
@@ -58,6 +59,7 @@ function Main() {
   const workout = state?.workout?.status === "active" ? state.workout : null;
   const restLeft = useRestLeft(workout, app.offset, () => haptic("success"));
 
+  if (state) setUnits(state.user.units ?? "kg");
   let screen;
   if (deleted) {
     screen = <DeletedScreen onClose={inTelegram() ? closeApp : () => setToken(null)} />;
@@ -98,7 +100,7 @@ function Main() {
   } else if (tab === "history") {
     screen = <HistoryScreen />;
   } else if (tab === "profile") {
-    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} installUrl={state.installUrl}
+    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} installUrl={state.installUrl} onMeChange={() => void app.refresh()}
       onLogout={inTelegram() ? undefined : logout} onDeleted={() => setDeleted(true)} />;
   } else {
     screen = <HomeScreen state={state} busy={busy} onStart={(day) => {

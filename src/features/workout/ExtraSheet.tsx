@@ -1,3 +1,4 @@
+import { toKg, unitName, weightStep } from "@/lib/units";
 import { useState } from "react";
 import { Button } from "@/ui/Button";
 import { Sheet } from "@/ui/Sheet";
@@ -20,13 +21,13 @@ export function ExtraSheet({ busy, onClose, onSave }: {
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Название, например «Шраги»"
           maxLength={80} aria-label="Название"
           className="h-12 w-full rounded-xl bg-surface px-4 text-body outline-none placeholder:text-hint" />
-        <Stepper label="Вес (0 — свой вес)" value={weight} unit="кг" step={2.5} onChange={setWeight} />
+        <Stepper label="Вес (0 — свой вес)" value={weight} unit={unitName()} step={weightStep()} onChange={setWeight} />
         <div className="grid grid-cols-2 gap-2">
           <Stepper compact label="Подходы" value={sets} onChange={(v) => setSets(Math.min(10, Math.round(v)))} />
           <Stepper compact label="Повторения" value={reps} onChange={(v) => setReps(Math.round(v))} />
         </div>
         <Button icon="check" disabled={busy || !ready}
-          onClick={() => onSave({ title: title.trim(), weight, reps: Array(sets).fill(reps) })}>
+          onClick={() => onSave({ title: title.trim(), weight: toKg(weight), reps: Array(sets).fill(reps) })}>
           Записать
         </Button>
       </div>

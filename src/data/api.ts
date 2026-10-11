@@ -1,4 +1,4 @@
-import type { ActionResult, AppState, ChatMessage, HistoryEntry, Profile, ProfileResult, ProgressData, SurveyAnswers } from "@/lib/types";
+import type { ActionResult, AppState, ChatMessage, HistoryEntry, Me, Profile, ProfileResult, ProgressData, SurveyAnswers } from "@/lib/types";
 import { getParam } from "@/platform/web/location";
 import { inTelegram, initData } from "@/platform/web/telegram";
 import { getToken, setToken } from "./session";
@@ -73,6 +73,9 @@ export const api = {
     return request<ActionResult>(`/api/action/${name}`, payload);
   },
   profile: () => request<Profile>("/api/profile"),
+  me: () => request<Me>("/api/me"),
+  // avatar: картинка data:… , "telegram" — взять из Telegram, null — убрать.
+  saveMe: (patch: Partial<Omit<Me, "avatar" | "avatarOwn">> & { avatar?: string | null }) => request<Me>("/api/me/save", patch, 30000),
   profileAct: (action: ProfileAction) => {
     const body = action.name === "survey" ? action.answers : { ...action, name: undefined };
     return request<ProfileResult>(`/api/profile/${action.name}`, body, PROFILE_TIMEOUT);

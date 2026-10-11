@@ -4,7 +4,8 @@ import { Card, Row } from "@/ui/Card";
 import { Chips } from "@/ui/Chips";
 import { LineChart } from "@/ui/LineChart";
 import { Centered, Notice } from "@/ui/Notice";
-import { formatSet, shortDay } from "@/lib/format";
+import { formatSet, formatWeight, shortDay } from "@/lib/format";
+import { showKg } from "@/lib/units";
 import { progressSummary } from "@/lib/progress";
 import { api } from "@/data/api";
 import { useLoad } from "@/data/useAppState";
@@ -45,13 +46,13 @@ export function ProgressView({ data, picked, onPick }: {
         <div className="flex items-end justify-between gap-2">
           <div>
             <p className="text-caption text-hint">Рабочий вес</p>
-            <p className="text-[34px] font-bold leading-tight">{summary.last.weight.toLocaleString("ru-RU")} кг</p>
+            <p className="text-[34px] font-bold leading-tight">{formatWeight(summary.last.weight)}</p>
           </div>
-          {summary.gain > 0 && <Badge tone="good">+{summary.gain.toLocaleString("ru-RU")} кг за {summary.sessions} трен.</Badge>}
+          {summary.gain > 0 && <Badge tone="good">+{formatWeight(summary.gain)} за {summary.sessions} трен.</Badge>}
         </div>
         {points.length > 1 && (
           <div className="mt-2">
-            <LineChart values={points.map((p) => p.weight)} labels={points.map((p) => shortDay(p.date))} />
+            <LineChart values={points.map((p) => showKg(p.weight))} labels={points.map((p) => shortDay(p.date))} />
           </div>
         )}
       </Card>

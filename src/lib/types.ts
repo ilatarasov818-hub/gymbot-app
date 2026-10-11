@@ -55,7 +55,7 @@ export type SwapOption = { name: string; muscles: string };
 export type Workout = ActiveWorkout | { status: "pending"; day: number } | { status: "free" };
 
 export type AppState = {
-  user: { name: string };
+  user: { name: string; units: Units };
   profileReady: boolean;
   installUrl: string | null; // постоянный адрес — по нему приложение ставят на экран телефона
   today: string;
@@ -130,3 +130,17 @@ export type SurveyAnswers = {
 export type ProfileResult = { message: string; profile: Profile; state: AppState };
 
 export type ChatMessage = { role: "user" | "assistant"; text: string };
+
+export type Sex = "m" | "f";
+export type Units = "kg" | "lb";
+// Личные данные из «Настроек»: имя видит и тренер в чате.
+export type Me = {
+  name: string;
+  avatar: string | null;        // адрес картинки или null — тогда буква имени
+  avatarOwn: boolean;           // своё фото, а не из Telegram
+  sex: Sex | null;
+  age: number | null;
+  weight: number | null;        // кг
+  height: number | null;        // см
+  units: Units;
+};
