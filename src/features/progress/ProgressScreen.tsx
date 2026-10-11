@@ -9,26 +9,56 @@ import { showKg } from "@/lib/units";
 import { progressSummary } from "@/lib/progress";
 import { api } from "@/data/api";
 import { useLoad } from "@/data/useAppState";
-import type { ProgressData } from "@/lib/types";
+import type { BodyPoint, ProgressData } from "@/lib/types";
+import { BodyWeightCard, BodyWeightSheet } from "./BodyWeight";
 import { AchievementsCard } from "./Achievements";
 
 export function ProgressScreen() {
   const { data, error } = useLoad(api.progress);
   const [picked, setPicked] = useState<string | null>(null);
+  const [body, setBody] = useState<BodyPoint[] | null>(null);
+  const [sheet, setSheet] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   if (error) return <Notice>{error}</Notice>;
   if (!data) return <Centered>Загрузка…</Centered>;
-  return <ProgressView data={data} picked={picked} onPick={setPicked} />;
+  const points = body ?? data.body ?? [];
+
+  const save = async (kg: number) => {
+    setSaving(true);
+    try {
+      setBody((await api.addBodyWeight(kg)).body);
+      setSheet(false);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <ProgressView data={{ ...data, body: points }} picked={picked} onPick={setPicked}
+        onAddWeight={() => { setSaveError(null); setSheet(true); }} />
+      {sheet && (
+        <BodyWeightSheet last={points.at(-1)?.weight ?? null} busy={saving} error={saveError}
+          onSave={(kg) => void save(kg)} onClose={() => setSheet(false)} />
+      )}
+    </>
+  );
 }
 
-export function ProgressView({ data, picked, onPick }: {
-  data: ProgressData; picked: string | null; onPick: (name: string) => void;
+export function ProgressView({ data, picked, onPick, onAddWeight }: {
+  data: ProgressData; picked: string | null; onPick: (name: string) => void; onAddWeight: () => void;
 }) {
+  const body = <BodyWeightCard points={data.body ?? []} onAdd={onAddWeight} />;
   const exercises = data.exercises.filter((e) => e.points.length > 0);
   if (exercises.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
         <AchievementsCard items={data.achievements} />
+        {body}
         <p className="text-center text-caption text-hint">Здесь появятся графики рабочих весов после первой тренировки.</p>
       </div>
     );
@@ -41,6 +71,7 @@ export function ProgressView({ data, picked, onPick }: {
     <div className="flex flex-col gap-4">
       <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
       <AchievementsCard items={data.achievements} />
+      {body}
       <Chips items={exercises.map((e) => e.name)} value={current.name} onChange={onPick} />
       <Card>
         <div className="flex items-end justify-between gap-2">

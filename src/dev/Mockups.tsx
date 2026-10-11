@@ -12,7 +12,9 @@ import { AchievementsCard } from "@/features/progress/Achievements";
 import { FinishScreen } from "@/features/workout/FinishScreen";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
 import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
-import type { Achievement, ActiveWorkout, ChatMessage, Me, Profile } from "@/lib/types";
+import type { Achievement, ActiveWorkout, AppState, ChatMessage, Me, Profile, WeekSummary } from "@/lib/types";
+import { HomeScreen } from "@/features/home/HomeScreen";
+import { BodyWeightSheet } from "@/features/progress/BodyWeight";
 import sampleImage from "./sample.webp";
 
 const PROFILE: Profile = {
@@ -40,6 +42,29 @@ const ACH: Achievement[] = [
   { id: "night", icon: "moon", title: "Ночная смена", about: "Тренировки, начатые после 22:00.", level: 1, levels: ["1 раз", "10 раз", "30 раз"], progress: 1, target: 10, unit: "раз" },
 ];
 const POINTS = [60, 62.5, 62.5, 65, 67.5, 70].map((weight, i) => ({ date: `2026-09-${String(7 + 4 * i).padStart(2, "0")}`, weight, reps: 8 }));
+
+const BODY = [["2026-09-07", 83.4], ["2026-09-14", 83.1], ["2026-09-21", 82.9], ["2026-09-28", 83.0], ["2026-10-05", 82.6], ["2026-10-12", 82.4]].map(([date, weight]) => ({ date: date as string, weight: weight as number }));
+const SUMMARY: WeekSummary = {
+  done: 3, planned: 3,
+  records: [{ name: "Жим лёжа", weight: 70 }, { name: "Приседания", weight: 90 }],
+  stalled: [{ name: "Тяга верхнего блока", weight: 50, weeks: 3 }],
+  body: { weight: 82.4, delta: -0.2 },
+  advice: "Тягу верхнего блока на этой неделе сделай 45 кг × 12 — потом 50 пойдёт легче. Остальное — добавляй по 2,5 кг, как получается.",
+};
+const DAY = (title: string, day: number, today = false) => ({
+  day, weekday: ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"][day], title, today, done: false,
+  exercises: [
+    { name: "Жим лёжа", sets: 3, repsMin: 6, repsMax: 10, bodyweight: false, weight: 70 },
+    { name: "Приседания", sets: 3, repsMin: 6, repsMax: 10, bodyweight: false, weight: 90 },
+    { name: "Тяга верхнего блока", sets: 3, repsMin: 8, repsMax: 12, bodyweight: false, weight: 50 },
+  ],
+});
+const STATE: AppState = {
+  user: { name: "Илья", units: "kg" }, profileReady: true, installUrl: null, today: "2026-10-12", serverTime: Date.now(),
+  stats: { monthWorkouts: 11, streakWeeks: 6 },
+  week: [DAY("Full Body A", 0, true), DAY("Full Body B", 2), DAY("Full Body C", 4)],
+  workout: null, summary: SUMMARY,
+};
 
 const CHAT: ChatMessage[] = [
   { role: "user", text: "Жим застрял на 80 кг уже две недели. Что делать?" },
@@ -127,11 +152,15 @@ export function Mockups({ name }: { name: string }) {
     case "set-bottom": return <Shell tabs={false}>{workout(WORKOUT(CURL))}</Shell>;
     case "skip": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SkipSheet name="Сгибание рук с гантелями" canLater done={1} busy={false} onClose={noop} onSkip={noop} /></Shell>;
     case "swap": return <Shell tabs={false}>{workout(WORKOUT(CURL))}<SwapSheet name="Сгибание рук с гантелями" muscles="бицепс" options={WORKOUT(CURL).swapOptions} busy={false} onClose={noop} onSwap={noop} /></Shell>;
-    case "achievements": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }, { name: "Приседания", points: POINTS }], achievements: ACH }} picked={null} onPick={noop} /></Shell>;
-    case "achievements-new": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })) }} picked={null} onPick={noop} /></Shell>;
+    case "achievements": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }, { name: "Приседания", points: POINTS }], achievements: ACH }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
+    case "achievements-new": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })) }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
     case "achievement": return <Shell tab="progress"><h1 className="pt-2 text-[28px] font-bold">Прогресс</h1><AchievementsCard items={ACH} openId="perfect" /></Shell>;
     case "finish-ach": return <Shell tabs={false}><FinishScreen onDone={noop} finished={{ title: "Full Body A", duration: "52 мин", sets: 18, volume: 6240, report: "📊 Итог тренировки\n⏱ Время: 52 мин\n📈 Прогресс:\n• Жим лёжа: вес 67.5 → 70 кг",
       achievements: [{ icon: "calendar", title: "Идеальная неделя", level: 1, levelText: "1 неделя" }, { icon: "chart", title: "Рекорды", level: 2, levelText: "10 рекордов" }] }} /></Shell>;
+    case "summary": return <Shell tab="home"><HomeScreen state={STATE} busy={false} onStart={noop} /></Shell>;
+    case "body": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
+    case "body-empty": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })), body: [] }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
+    case "body-sheet": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /><BodyWeightSheet last={82.4} busy={false} onSave={noop} onClose={noop} /></Shell>;
     case "set-noimage": return <Shell tabs={false}>{workout(WORKOUT(BENCH, "Жим штанги лёжа"))}</Shell>;
     default: return <p>Нет макета «{name}»</p>;
   }

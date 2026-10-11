@@ -5,6 +5,7 @@ import { Icon } from "@/ui/Icon";
 import { formatWeight, plural } from "@/lib/format";
 import type { AppState, DayPlan, PlanExercise } from "@/lib/types";
 import { ExerciseSheet } from "./ExerciseSheet";
+import { WeekSummaryCard } from "./WeekSummaryCard";
 
 function defaultDay(week: DayPlan[]): DayPlan | undefined {
   const todayIndex = week.findIndex((d) => d.today);
@@ -32,6 +33,8 @@ export function HomeScreen({ state, busy, onStart }: {
         <Stat value={String(stats.monthWorkouts)} label={`${plural(stats.monthWorkouts, "тренировка", "тренировки", "тренировок")} за месяц`} />
         <Stat value={`${stats.streakWeeks} нед.`} label={stats.streakWeeks ? "без пропусков 🔥" : "подряд с тренировками"} />
       </div>
+
+      {state.summary && <WeekSummaryCard summary={state.summary} />}
 
       {state.workout?.status === "free" && (
         <Card><p className="text-body">Сейчас идёт свободная запись в чате. Закончи её там кнопкой «🏁 Финиш».</p></Card>
