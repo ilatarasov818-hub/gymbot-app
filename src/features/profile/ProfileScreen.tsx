@@ -1,39 +1,25 @@
-import type { ReactNode } from "react";
 import { Button } from "@/ui/Button";
 import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Notice } from "@/ui/Notice";
-import { Segmented } from "@/ui/Segmented";
-import { Swatches } from "@/ui/Swatches";
-import { ACCENTS } from "@/lib/accents";
+import { Avatar } from "@/ui/Avatar";
+import { meFacts } from "@/lib/me";
 import {
   DURATIONS, GOALS, HOME, LEVELS, daysText, hasDumbbells, labelOf, placeText, stepText,
 } from "@/lib/profile";
-import type { Accent, Profile, ThemePref } from "@/lib/types";
+import type { Me, Profile } from "@/lib/types";
 import type { FieldKey } from "./questions";
 
-const THEMES: { value: ThemePref; label: string }[] = [
-  { value: "auto", label: "Авто" },
-  { value: "light", label: "Светлая" },
-  { value: "dark", label: "Тёмная" },
-];
-
-export function ProfileScreen({ profile, busy, message, theme, onTheme, accent, onAccent, onEdit, onRebuild, onRestart, onFeedback, onDelete, onLogout, onCloseMessage, install }: {
+export function ProfileScreen({ profile, me, busy, message, onSettings, onEdit, onRebuild, onRestart, onCloseMessage }: {
   profile: Profile;
+  me: Me;
   busy: boolean;
   message?: string | null;
-  theme: ThemePref;
-  onTheme: (theme: ThemePref) => void;
-  accent: Accent;
-  onAccent: (accent: Accent) => void;
+  onSettings: () => void;
   onEdit: (field: FieldKey) => void;
   onRebuild: () => void;
   onRestart: () => void;
-  onFeedback: () => void;
-  onDelete: () => void;
-  onLogout?: () => void;
   onCloseMessage?: () => void;
-  install?: ReactNode;
 }) {
   const p = profile;
   const rows: [FieldKey, string, string][] = [
@@ -49,9 +35,22 @@ export function ProfileScreen({ profile, busy, message, theme, onTheme, accent, 
 
   return (
     <div className="flex flex-col gap-4">
-      <header className="pt-2">
+      <header className="flex items-center justify-between pt-2">
         <h1 className="text-[28px] font-bold leading-tight">Профиль</h1>
+        <button type="button" aria-label="Настройки" onClick={onSettings}
+          className="flex size-10 items-center justify-center rounded-full bg-bg text-accent active:scale-95">
+          <Icon name="gear" />
+        </button>
       </header>
+
+      <button type="button" onClick={onSettings} className="flex items-center gap-4 rounded-card bg-bg p-4 text-left">
+        <Avatar name={me.name} src={me.avatar} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-title font-bold">{me.name || "Без имени"}</span>
+          <span className="block truncate text-caption text-hint">{meFacts(me) || "Добавь вес, рост и возраст"}</span>
+        </span>
+        <span className="text-hint"><Icon name="chevron" size={16} /></span>
+      </button>
 
       {message && (
         <div onClick={onCloseMessage} className="whitespace-pre-line rounded-card bg-good/15 p-4 text-caption font-medium">
@@ -90,23 +89,6 @@ export function ProfileScreen({ profile, busy, message, theme, onTheme, accent, 
       )}
 
       <Button variant="secondary" disabled={busy} onClick={onRestart}>Заполнить заново</Button>
-
-      <Card title="Оформление">
-        <Segmented options={THEMES} value={theme} onPick={onTheme} />
-        {theme === "auto" && <p className="mt-2 text-caption text-hint">Как в Telegram.</p>}
-        <p className="mb-3 mt-5 text-caption font-semibold uppercase tracking-wide text-hint">Цвет</p>
-        <Swatches options={ACCENTS} value={accent} onPick={onAccent} />
-      </Card>
-
-      <Card>
-        <Row onClick={onFeedback} left={<span className="flex items-center gap-3 text-accent"><Icon name="mail" />Написать отзыв</span>} />
-        {onLogout && (
-          <Row onClick={onLogout} left={<span className="flex items-center gap-3 text-accent"><Icon name="logout" />Выйти</span>} />
-        )}
-        <Row onClick={onDelete} left={<span className="flex items-center gap-3 text-bad"><Icon name="trash" />Удалить мои данные</span>} />
-      </Card>
-
-      {install}
     </div>
   );
 }

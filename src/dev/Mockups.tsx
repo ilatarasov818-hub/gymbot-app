@@ -10,7 +10,9 @@ import { SkipSheet, SwapSheet } from "@/features/workout/ExerciseSheets";
 import { ProgressView } from "@/features/progress/ProgressScreen";
 import { AchievementsCard } from "@/features/progress/Achievements";
 import { FinishScreen } from "@/features/workout/FinishScreen";
-import type { Achievement, ActiveWorkout, ChatMessage, Profile } from "@/lib/types";
+import { SettingsScreen } from "@/features/settings/SettingsScreen";
+import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
+import type { Achievement, ActiveWorkout, ChatMessage, Me, Profile } from "@/lib/types";
 import sampleImage from "./sample.webp";
 
 const PROFILE: Profile = {
@@ -22,6 +24,9 @@ const PROFILE: Profile = {
   ],
   ownProgram: true, stale: false,
 };
+
+const ME: Me = { name: "Илья", avatar: null, avatarOwn: false, sex: "m", age: 29, weight: 82, height: 180, units: "kg" };
+const ME_EMPTY: Me = { name: "Илья", avatar: null, avatarOwn: false, sex: null, age: null, weight: null, height: null, units: "kg" };
 
 const noop = () => {};
 
@@ -91,11 +96,20 @@ function Shell({ children, tabs = true, tab = "profile" }: { children: React.Rea
 
 export function Mockups({ name }: { name: string }) {
   const profile = (patch: Partial<Profile> = {}, message?: string) => (
-    <ProfileScreen profile={{ ...PROFILE, ...patch }} busy={false} message={message} theme="auto" onTheme={noop} accent="blue" onAccent={noop}
-      onEdit={noop} onRebuild={noop} onRestart={noop} onFeedback={noop} onDelete={noop} />
+    <ProfileScreen profile={{ ...PROFILE, ...patch }} me={ME} busy={false} message={message} onSettings={noop}
+      onEdit={noop} onRebuild={noop} onRestart={noop} />
+  );
+  const settings = (me: Me = ME) => (
+    <SettingsScreen me={me} theme="auto" onTheme={noop} accent="blue" onAccent={noop} onBack={noop} onAvatar={noop}
+      onEdit={noop} onSex={noop} onUnits={noop} onFeedback={noop} onDelete={noop} onLogout={noop} />
   );
   switch (name) {
     case "profile": return <Shell>{profile()}</Shell>;
+    case "settings": return <Shell>{settings()}</Shell>;
+    case "settings-bottom": return <Shell>{settings()}</Shell>;
+    case "settings-empty": return <Shell>{settings(ME_EMPTY)}</Shell>;
+    case "settings-weight": return <Shell>{settings()}<MeSheet field="weight" me={ME} busy={false} onSave={noop} onClose={noop} /></Shell>;
+    case "settings-avatar": return <Shell>{settings()}<AvatarSheet me={ME} busy={false} onPick={noop} onTelegram={noop} onRemove={noop} onClose={noop} /></Shell>;
     case "stale": return <Shell>{profile({ stale: true, weekdays: [0, 2, 4, 5] })}</Shell>;
     case "limits-done": return <Shell>{profile({}, "🩺 Учёл: «болит колено».\nЖим ногами → Ягодичный мост\nРазгибание ног — убрал, безопасной замены нет")}</Shell>;
     case "edit-days": return <Shell>{profile()}<EditSheet field="weekdays" profile={PROFILE} busy={false} onSave={noop} onClose={noop} /></Shell>;

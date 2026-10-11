@@ -5,6 +5,7 @@ import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Stepper } from "@/ui/Stepper";
 import { formatSet } from "@/lib/format";
+import { showKg, toKg, unitName, weightStep } from "@/lib/units";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
 import { ExercisePicture, HowTo } from "./ExerciseInfoView";
@@ -22,7 +23,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
   const { exercises, index, results } = workout;
   const ex = exercises[index];
   const last = results[results.length - 1];
-  const [weight, setWeight] = useState(last?.weight ?? workout.weight ?? 0);
+  const [weight, setWeight] = useState(() => showKg(last?.weight ?? workout.weight ?? 0));
   const [reps, setReps] = useState(last?.reps ?? ex.repsMax);
   const [extraOpen, setExtraOpen] = useState(false);
   const [sheet, setSheet] = useState<"skip" | "swap" | null>(null);
@@ -48,12 +49,12 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
         </div>
         {ex.info && <ExercisePicture info={ex.info} />}
         <div className="mt-6 flex flex-col gap-6">
-          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit="кг" step={2.5} onChange={setWeight} />}
+          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit={unitName()} step={weightStep()} onChange={setWeight} />}
           <Stepper label="Повторения" value={reps} onChange={setReps} />
         </div>
         <div className="mt-6">
           <Button icon="check" disabled={busy || reps <= 0 || (needsWeight && weight <= 0)}
-            onClick={() => onSet(ex.bodyweight ? 0 : weight, reps)}>
+            onClick={() => onSet(ex.bodyweight ? 0 : toKg(weight), reps)}>
             {needsWeight && weight <= 0 ? "Укажи вес" : "Записать подход"}
           </Button>
         </div>

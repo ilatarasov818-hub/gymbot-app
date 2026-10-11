@@ -4,12 +4,13 @@ import { Icon } from "@/ui/Icon";
 import { LEVEL_NAME } from "@/lib/medals";
 import { Medal } from "@/ui/Medal";
 import { plural } from "@/lib/format";
+import { showKg, unitName } from "@/lib/units";
 import type { Finished } from "@/lib/types";
 
 export function FinishScreen({ finished, onDone }: { finished: Finished; onDone: () => void }) {
   const stats: [string, string][] = [
     [String(finished.sets), plural(finished.sets, "подход", "подхода", "подходов")],
-    [finished.volume.toLocaleString("ru-RU"), "кг поднято"],
+    [showKg(finished.volume).toLocaleString("ru-RU"), `${unitName()} поднято`],
     [finished.duration, "время"],
   ];
   return (

@@ -1,6 +1,6 @@
 import { Button } from "@/ui/Button";
 import { ProgressRing } from "@/ui/ProgressRing";
-import { formatRest, formatSet } from "@/lib/format";
+import { formatRest, formatSet, formatWeight } from "@/lib/format";
 import type { ActiveWorkout } from "@/lib/types";
 
 export function RestScreen({ workout, left, busy, onSkip, onExtend }: {
@@ -26,7 +26,7 @@ export function RestScreen({ workout, left, busy, onSkip, onExtend }: {
         <p className="mt-1 font-semibold">{ex.name}</p>
         <p className="text-caption text-hint">
           Подход {workout.currentSet} из {ex.sets}
-          {!ex.bodyweight && last?.weight ? ` · ${last.weight.toLocaleString("ru-RU")} кг` : ""} · цель {ex.repsMin}–{ex.repsMax}
+          {!ex.bodyweight && last?.weight ? ` · ${formatWeight(last.weight)}` : ""} · цель {ex.repsMin}–{ex.repsMax}
         </p>
       </div>
 
