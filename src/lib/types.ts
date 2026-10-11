@@ -22,6 +22,7 @@ export type PlanExercise = {
   repsMax: number;
   bodyweight: boolean;
   weight: number | null; // последний рабочий вес, null — нет истории или свой вес
+  info?: ExerciseInfo | null; // техника для просмотра с главной
 };
 
 export type DayPlan = {
