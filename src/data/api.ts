@@ -87,5 +87,6 @@ export const api = {
   loginStart: () => request<{ code: string; link: string }>("/api/login/start", {}, 15000, false),
   loginCheck: (code: string) => request<{ wait?: boolean; token?: string }>("/api/login/check", { code }, 15000, false),
   logout: () => request<{ ok: boolean }>("/api/logout", {}),
+  resetHistory: () => request<{ message: string }>("/api/account/reset", {}),
   deleteData: () => request<{ message: string; deleted: boolean }>("/api/account/delete", {}),
 };

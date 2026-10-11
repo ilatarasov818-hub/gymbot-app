@@ -6,7 +6,7 @@ import { accentPref, setAccentPref, setThemePref, themePref } from "@/platform/w
 import { DEFAULT_ACCENT } from "@/lib/accents";
 import { pickImage } from "@/platform/web/image";
 import type { Me, Profile, ProfileResult } from "@/lib/types";
-import { DeleteSheet, FeedbackSheet } from "./AccountSheets";
+import { DeleteSheet, FeedbackSheet, ResetSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
 import { InstallCard } from "@/features/install/InstallCard";
 import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
@@ -15,7 +15,7 @@ import { ProfileScreen } from "./ProfileScreen";
 import { SurveyScreen } from "./SurveyScreen";
 import { profileDraft, type Draft, type FieldKey } from "./questions";
 
-type Account = "feedback" | "delete";
+type Account = "feedback" | "reset" | "delete";
 
 export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout, onDeleted, onMeChange }: {
   busy: boolean;
@@ -93,6 +93,20 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
     }
   };
 
+  const resetHistory = async () => {
+    setAccountBusy(true);
+    try {
+      setMessage((await api.resetHistory()).message);
+      haptic("success");
+      openAccount(null);
+      onMeChange();
+    } catch (e) {
+      setAccountError((e as Error).message);
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
   const deleteData = async () => {
     setAccountBusy(true);
     try {
@@ -130,6 +144,7 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
           onSex={(sex) => void saveMe({ sex })}
           onUnits={(units) => void saveMe({ units })}
           onFeedback={() => openAccount("feedback")}
+          onReset={() => openAccount("reset")}
           onDelete={() => openAccount("delete")}
           onLogout={onLogout}
           install={<InstallCard installUrl={installUrl} />} />
@@ -151,6 +166,10 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
       )}
       {account === "feedback" && (
         <FeedbackSheet busy={accountBusy} error={accountError} onSend={(text) => void sendFeedback(text)}
+          onClose={() => openAccount(null)} />
+      )}
+      {account === "reset" && (
+        <ResetSheet busy={accountBusy} error={accountError} onReset={() => void resetHistory()}
           onClose={() => openAccount(null)} />
       )}
       {account === "delete" && (

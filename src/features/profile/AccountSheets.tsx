@@ -57,6 +57,30 @@ export function DeleteSheet({ busy, error, onDelete, onClose }: {
   );
 }
 
+const RESET = ["подходы и веса", "рекорды и графики", "медали", "счётчик тренировок и серию недель"];
+
+export function ResetSheet({ busy, error, onReset, onClose }: {
+  busy: boolean;
+  error?: string | null;
+  onReset: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <Sheet title="Сбросить историю?" onClose={onClose}>
+      <p className="mb-2 text-body">Сотру:</p>
+      <ul className="mb-4 list-disc pl-5 text-body">
+        {RESET.map((d) => <li key={d}>{d}</li>)}
+      </ul>
+      <p className="mb-4 text-caption text-hint">Программа, профиль, настройки и переписка с тренером останутся. Вернуть историю будет нельзя.</p>
+      {error && <div className="mb-4"><Notice>{error}</Notice></div>}
+      <div className="flex flex-col gap-2">
+        <Button variant="danger" disabled={busy} onClick={onReset}>{busy ? "Сбрасываю…" : "Сбросить историю"}</Button>
+        <Button variant="plain" disabled={busy} onClick={onClose}>Не сбрасывать</Button>
+      </div>
+    </Sheet>
+  );
+}
+
 export function DeletedScreen({ onClose }: { onClose: () => void }) {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
