@@ -8,7 +8,7 @@ export function LoginScreen() {
   return (
     <div className="flex flex-1 flex-col justify-center gap-4">
       <div className="flex flex-col items-center gap-2 py-6 text-center">
-        <img src="./icon.svg" alt="" width={88} height={88} className="rounded-[22px]" />
+        <img src="./icon-192.png" alt="" width={88} height={88} className="rounded-[22px]" />
         <h1 className="text-[28px] font-bold leading-tight">Gym</h1>
         <p className="text-body text-hint">Твой тренер: программа, вес на каждый подход и прогресс.</p>
       </div>
