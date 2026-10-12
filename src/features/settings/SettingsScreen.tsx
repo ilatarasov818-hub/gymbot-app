@@ -4,9 +4,10 @@ import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Segmented } from "@/ui/Segmented";
 import { Swatches } from "@/ui/Swatches";
+import { WallpaperPicker } from "./WallpaperPicker";
 import { ACCENTS } from "@/lib/accents";
 import { SEXES, UNITS, ageText, toUnits, unitLabel } from "@/lib/me";
-import type { Accent, Me, Sex, ThemePref, Units } from "@/lib/types";
+import type { Accent, Me, Sex, ThemePref, Units, Wallpaper } from "@/lib/types";
 
 export type MeField = "name" | "age" | "weight" | "height";
 
@@ -20,12 +21,17 @@ const Value = ({ children }: { children: ReactNode }) => (
   <span className="flex max-w-48 items-center gap-1"><span className="truncate">{children}</span><Icon name="chevron" size={16} /></span>
 );
 
-export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, message, onCloseMessage }: {
+export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper, wallpaperPhoto, onWallpaper, onWallpaperPhoto, wallpaperError, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, message, onCloseMessage }: {
   me: Me;
   theme: ThemePref;
   onTheme: (theme: ThemePref) => void;
   accent: Accent;
   onAccent: (accent: Accent) => void;
+  wallpaper: Wallpaper;
+  wallpaperPhoto: string | null;
+  onWallpaper: (value: Wallpaper) => void;
+  onWallpaperPhoto: () => void;
+  wallpaperError?: string | null;
   onBack: () => void;
   onAvatar: () => void;
   onEdit: (field: MeField) => void;
@@ -78,6 +84,9 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, onBack, o
         {theme === "auto" && <p className="mt-2 text-caption text-hint">Как в Telegram.</p>}
         <p className="mb-3 mt-5 text-caption font-semibold uppercase tracking-wide text-hint">Цвет</p>
         <Swatches options={ACCENTS} value={accent} onPick={onAccent} />
+        <p className="mb-3 mt-5 text-caption font-semibold uppercase tracking-wide text-hint">Обои</p>
+        <WallpaperPicker value={wallpaper} photo={wallpaperPhoto} onPick={onWallpaper} onPhoto={onWallpaperPhoto} />
+        {wallpaperError && <p className="mt-2 text-caption text-bad">{wallpaperError}</p>}
       </Card>
 
       {install}

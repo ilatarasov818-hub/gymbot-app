@@ -4,7 +4,8 @@ import { api, type ProfileAction } from "@/data/api";
 import { haptic } from "@/platform/web/telegram";
 import { accentPref, setAccentPref, setThemePref, themePref } from "@/platform/web/theme";
 import { DEFAULT_ACCENT } from "@/lib/accents";
-import { pickImage } from "@/platform/web/image";
+import { pickImage, pickPhoto } from "@/platform/web/image";
+import { setWallpaperPhoto, setWallpaperPref, wallpaperPhoto, wallpaperPref } from "@/platform/web/wallpaper";
 import type { Me, Profile, ProfileResult } from "@/lib/types";
 import { DeleteSheet, FeedbackSheet, ResetSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
@@ -36,6 +37,9 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
   const [accountError, setAccountError] = useState<string | null>(null);
   const [theme, setTheme] = useState(themePref);
   const [accent, setAccent] = useState(() => accentPref() ?? DEFAULT_ACCENT);
+  const [wallpaper, setWallpaper] = useState(wallpaperPref);
+  const [wallPhoto, setWallPhoto] = useState(wallpaperPhoto);
+  const [wallError, setWallError] = useState<string | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [settings, setSettings] = useState(false);
   const [meSheet, setMeSheet] = useState<MeField | "avatar" | null>(null);
@@ -122,6 +126,19 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
   if (error) return <Notice>{error}</Notice>;
   if (!profile || !me) return <Centered>Загрузка…</Centered>;
 
+  const pickWallpaper = async () => {
+    const photo = await pickPhoto();
+    if (!photo) return;
+    if (!setWallpaperPhoto(photo)) {
+      setWallError("Фото слишком большое для этого устройства — попробуй другое.");
+      return;
+    }
+    setWallError(null);
+    setWallPhoto(photo);
+    setWallpaper("photo");
+    haptic("success");
+  };
+
   if (restart) {
     return (
       <SurveyScreen busy={busy} initial={profileDraft(profile)} onCancel={() => setRestart(false)}
@@ -137,6 +154,9 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
         <SettingsScreen me={me}
           theme={theme} onTheme={(t) => { setThemePref(t); setTheme(t); haptic("light"); }}
           accent={accent} onAccent={(a) => { setAccentPref(a); setAccent(a); haptic("light"); }}
+          wallpaper={wallpaper} wallpaperPhoto={wallPhoto} wallpaperError={wallError}
+          onWallpaper={(w) => { setWallpaperPref(w); setWallpaper(w); setWallError(null); haptic("light"); }}
+          onWallpaperPhoto={() => void pickWallpaper()}
           onBack={() => { setMessage(null); setSettings(false); }}
           message={message} onCloseMessage={() => setMessage(null)}
           onAvatar={() => { setMeError(null); setMeSheet("avatar"); }}
