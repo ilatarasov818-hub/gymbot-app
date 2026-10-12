@@ -27,11 +27,14 @@ export type PlanExercise = {
 };
 
 export type DayPlan = {
-  day: number;
+  day: number; // день программы — им запускаем и переносим
+  slot: number; // день недели, когда тренировка на этой неделе (с учётом переноса)
   weekday: string;
+  movedFrom: string | null; // день по плану, если перенесли
   title: string;
   today: boolean;
   done: boolean;
+  moveTo: number[]; // свободные дни до конца недели, куда можно перенести
   exercises: PlanExercise[];
 };
 

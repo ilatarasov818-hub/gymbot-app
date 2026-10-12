@@ -6,21 +6,23 @@ import { formatWeight, plural } from "@/lib/format";
 import { plannedMinutes } from "@/lib/eta";
 import type { AppState, DayPlan, PlanExercise } from "@/lib/types";
 import { ExerciseSheet } from "./ExerciseSheet";
+import { MoveSheet } from "./MoveSheet";
 import { WeekSummaryCard } from "./WeekSummaryCard";
 
 function defaultDay(week: DayPlan[]): DayPlan | undefined {
   const todayIndex = week.findIndex((d) => d.today);
   if (todayIndex >= 0) return week[todayIndex];
   const now = new Date().getDay() || 7; // пн = 1 … вс = 7
-  return week.find((d) => d.day + 1 > now) ?? week[0];
+  return week.find((d) => d.slot + 1 > now) ?? week[0];
 }
 
-export function HomeScreen({ state, busy, onStart }: {
-  state: AppState; busy: boolean; onStart: (day: number) => void;
+export function HomeScreen({ state, busy, onStart, onMove }: {
+  state: AppState; busy: boolean; onStart: (day: number) => void; onMove: (day: number, to: number) => Promise<boolean>;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   const [shown, setShown] = useState<PlanExercise | null>(null);
   const [open, setOpen] = useState(false);
+  const [moving, setMoving] = useState(false);
   const day = state.week.find((d) => d.day === picked) ?? defaultDay(state.week);
   const { stats } = state;
   const restDay = !state.week.some((d) => d.today);
@@ -50,6 +52,7 @@ export function HomeScreen({ state, busy, onStart }: {
                 {day.exercises.length} {plural(day.exercises.length, "упражнение", "упражнения", "упражнений")} · ~{plannedMinutes(day.exercises)} мин
                 {day.done && (day.today || picked !== null) ? " · готово ✓" : ""}
               </p>
+              {day.movedFrom && <p className="text-caption text-accent">Перенесена, по плану — {day.movedFrom}</p>}
             </div>
             <span className={`shrink-0 text-hint transition-transform ${open ? "-rotate-90" : "rotate-90"}`}>
               <Icon name="chevron" size={20} />
@@ -72,6 +75,21 @@ export function HomeScreen({ state, busy, onStart }: {
         <Button icon="play" disabled={busy || state.workout?.status === "free"} onClick={() => onStart(day.day)}>
           {day.today || picked !== null ? "Начать тренировку" : "Начать всё равно"}
         </Button>
+      )}
+
+      {day && day.moveTo.length > 0 && !state.workout && (
+        <Button icon="calendar" variant="secondary" size="md" disabled={busy} onClick={() => setMoving(true)}>
+          Перенести на другой день
+        </Button>
+      )}
+
+      {moving && day && (
+        <MoveSheet day={day} today={state.today} busy={busy} onClose={() => setMoving(false)} onPick={async (to) => {
+          if (await onMove(day.day, to)) {
+            setPicked(day.day);
+            setMoving(false);
+          }
+        }} />
       )}
 
       {shown && <ExerciseSheet exercise={shown} onClose={() => setShown(null)} />}
@@ -97,15 +115,16 @@ function WeekStrip({ week, selected, streakWeeks, monthWorkouts, onPick }: {
       </header>
       <div className="grid grid-cols-7 gap-1">
         {WEEKDAYS.map((label, i) => {
-          const plan = week.find((d) => d.day === i);
+          const plan = week.find((d) => d.slot === i);
           const isToday = i === todayIndex;
+          const chosen = plan !== undefined && selected === plan.day;
           const circle = plan?.done
             ? "bg-good text-white"
-            : plan ? (selected === i ? "bg-accent text-accent-fg" : "bg-surface text-fg") : "text-hint";
-          const ring = plan && selected === i ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : "";
+            : plan ? (chosen ? "bg-accent text-accent-fg" : "bg-surface text-fg") : "text-hint";
+          const ring = chosen ? "ring-2 ring-accent ring-offset-2 ring-offset-bg" : "";
           return (
-            <button key={label} type="button" disabled={!plan} onClick={() => plan && onPick(i)}
-              aria-label={plan ? `${label}: ${plan.title}` : `${label}: отдых`} aria-pressed={selected === i}
+            <button key={label} type="button" disabled={!plan} onClick={() => plan && onPick(plan.day)}
+              aria-label={plan ? `${label}: ${plan.title}` : `${label}: отдых`} aria-pressed={chosen}
               className="flex flex-col items-center gap-1.5">
               <span className={`flex size-10 items-center justify-center rounded-full text-caption font-semibold ${circle} ${ring}`}>
                 {plan?.done ? <Icon name="check" size={18} /> : label}

@@ -33,3 +33,8 @@ export function plural(n: number, one: string, few: string, many: string): strin
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
 }
+
+/** День недели даты «2026-10-12»: пн = 0 … вс = 6. */
+export function weekdayIndex(iso: string): number {
+  return (new Date(`${iso}T12:00:00`).getDay() + 6) % 7;
+}
