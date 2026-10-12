@@ -89,5 +89,9 @@ export const api = {
   loginCheck: (code: string) => request<{ wait?: boolean; token?: string }>("/api/login/check", { code }, 15000, false),
   logout: () => request<{ ok: boolean }>("/api/logout", {}),
   resetHistory: () => request<{ message: string }>("/api/account/reset", {}),
+  pushKey: () => request<{ key: string | null }>("/api/push"),
+  pushSubscribe: (subscription: PushSubscriptionJSON) => request<{ ok: boolean }>("/api/push/subscribe", { subscription }),
+  pushUnsubscribe: (endpoint: string) => request<{ ok: boolean }>("/api/push/unsubscribe", { endpoint }),
+  pushTest: () => request<{ ok: boolean }>("/api/push/test", {}),
   deleteData: () => request<{ message: string; deleted: boolean }>("/api/account/delete", {}),
 };

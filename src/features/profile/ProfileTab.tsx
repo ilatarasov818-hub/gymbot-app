@@ -10,6 +10,7 @@ import type { Me, Profile, ProfileResult } from "@/lib/types";
 import { DeleteSheet, FeedbackSheet, ResetSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
 import { InstallCard } from "@/features/install/InstallCard";
+import { NotificationsCard } from "@/features/notifications/NotificationsCard";
 import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
 import { SettingsScreen, type MeField } from "@/features/settings/SettingsScreen";
 import { ProfileScreen } from "./ProfileScreen";
@@ -167,6 +168,7 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
           onReset={() => openAccount("reset")}
           onDelete={() => openAccount("delete")}
           onLogout={onLogout}
+          notifications={<NotificationsCard />}
           install={<InstallCard installUrl={installUrl} />} />
       ) : (
         <ProfileScreen profile={profile} me={me} busy={busy} message={message}

@@ -21,7 +21,7 @@ const Value = ({ children }: { children: ReactNode }) => (
   <span className="flex max-w-48 items-center gap-1"><span className="truncate">{children}</span><Icon name="chevron" size={16} /></span>
 );
 
-export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper, wallpaperPhoto, onWallpaper, onWallpaperPhoto, wallpaperError, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, message, onCloseMessage }: {
+export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper, wallpaperPhoto, onWallpaper, onWallpaperPhoto, wallpaperError, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, notifications, message, onCloseMessage }: {
   me: Me;
   theme: ThemePref;
   onTheme: (theme: ThemePref) => void;
@@ -42,6 +42,7 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper
   onDelete: () => void;
   onLogout?: () => void;
   install?: ReactNode;
+  notifications?: ReactNode;
   message?: string | null;
   onCloseMessage?: () => void;
 }) {
@@ -88,6 +89,8 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper
         <WallpaperPicker value={wallpaper} photo={wallpaperPhoto} onPick={onWallpaper} onPhoto={onWallpaperPhoto} />
         {wallpaperError && <p className="mt-2 text-caption text-bad">{wallpaperError}</p>}
       </Card>
+
+      {notifications}
 
       {install}
 
