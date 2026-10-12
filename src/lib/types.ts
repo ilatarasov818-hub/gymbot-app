@@ -2,6 +2,7 @@ import type { MedalIcon } from "@/ui/Medal";
 
 export type ThemePref = "auto" | "light" | "dark";
 export type Accent = "blue" | "green" | "orange" | "red" | "purple" | "pink";
+export type Wallpaper = "none" | "gym" | "mountains" | "waves" | "neon" | "photo";
 
 export type DoneSet = { weight: number | null; reps: number };
 

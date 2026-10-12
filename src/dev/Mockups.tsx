@@ -125,7 +125,7 @@ export function Mockups({ name }: { name: string }) {
       onEdit={noop} onRebuild={noop} onRestart={noop} />
   );
   const settings = (me: Me = ME) => (
-    <SettingsScreen me={me} theme="auto" onTheme={noop} accent="blue" onAccent={noop} onBack={noop} onAvatar={noop}
+    <SettingsScreen me={me} theme="auto" onTheme={noop} accent="blue" onAccent={noop} wallpaper="gym" wallpaperPhoto={null} onWallpaper={noop} onWallpaperPhoto={noop} onBack={noop} onAvatar={noop}
       onEdit={noop} onSex={noop} onUnits={noop} onFeedback={noop} onReset={noop} onDelete={noop} onLogout={noop} />
   );
   switch (name) {

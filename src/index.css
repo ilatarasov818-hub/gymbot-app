@@ -67,6 +67,17 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Обои: картинка под всем, сверху дымка цвета фона, чтобы текст читался; карточки полупрозрачные. */
+:root[data-wall] { --color-bg: color-mix(in srgb, var(--bg) 82%, transparent); }
+:root[data-wall] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(color-mix(in srgb, var(--surface) 55%, transparent), color-mix(in srgb, var(--surface) 55%, transparent)),
+    var(--wall) center / cover no-repeat;
+}
+
 html, body, #root { height: 100%; }
 body {
   margin: 0;
