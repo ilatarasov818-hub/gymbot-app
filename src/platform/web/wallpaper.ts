@@ -5,6 +5,7 @@ import type { Wallpaper } from "@/lib/types";
 
 const KEY = "wallpaper";
 const PHOTO_KEY = "wallpaper-photo";
+const DEFAULT: Wallpaper = "gym"; // у всех сразу; «Без обоев» сохраняется явно
 
 export function wallpaperPhoto(): string | null {
   return load(PHOTO_KEY);
@@ -12,6 +13,8 @@ export function wallpaperPhoto(): string | null {
 
 export function wallpaperPref(): Wallpaper {
   const v = load(KEY);
+  if (v === null) return DEFAULT;
+  if (v === "none") return "none";
   if (v === "photo") return wallpaperPhoto() ? "photo" : "none";
   return WALLPAPERS.find((w) => w.value === v)?.value ?? "none";
 }
@@ -29,7 +32,7 @@ export function applyWallpaper() {
 }
 
 export function setWallpaperPref(value: Wallpaper) {
-  save(KEY, value === "none" ? null : value);
+  save(KEY, value);
   applyWallpaper();
 }
 
