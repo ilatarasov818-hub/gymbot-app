@@ -1,7 +1,7 @@
 // Приложение открывается и без связи с ботом: страницу и картинки держим в памяти телефона.
 // Данные (/api/) всегда берём у бота заново.
-const CACHE = "gym-v1";
-const SHELL = ["./", "./manifest.webmanifest", "./icon.svg", "./icon-192.png"];
+const CACHE = "gym-v2"; // новая иконка — сменить номер, чтобы телефоны взяли свежие картинки
+const SHELL = ["./", "./manifest.webmanifest", "./icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
