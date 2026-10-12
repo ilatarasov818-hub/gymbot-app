@@ -39,3 +39,41 @@ self.addEventListener("fetch", (event) => {
   // Файлы сборки и картинки не меняются — сначала из памяти.
   event.respondWith(caches.match(request).then((cached) => cached ?? fromNetwork(request)));
 });
+
+// Уведомление от бота: конец отдыха, день тренировки, итог недели.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data ? event.data.text() : "" };
+  }
+  const tag = data.tag || undefined;
+  const shown = self.registration.showNotification(data.title || "Gym", {
+    body: data.body || "",
+    tag,
+    renotify: Boolean(tag),
+    icon: "./icon-192.png",
+    badge: "./icon-192.png",
+    data: { url: data.url || "./" },
+  });
+  // Напоминание и итог — точкой на значке, пока приложение не открыли.
+  const badge = tag === "rest" || tag === "test" ? Promise.resolve() : self.navigator.setAppBadge?.(1)?.catch(() => undefined);
+  event.waitUntil(Promise.all([shown, badge]));
+});
+
+// Нажали на уведомление — открываем приложение (или уже открытое) на нужном экране.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL(event.notification.data?.url || "./", self.registration.scope).href;
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    const open = windows[0];
+    if (open) {
+      await open.focus();
+      if (url !== self.registration.scope && "navigate" in open) await open.navigate(url).catch(() => undefined);
+      return;
+    }
+    await self.clients.openWindow(url);
+  })());
+});

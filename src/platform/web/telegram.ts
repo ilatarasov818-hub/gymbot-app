@@ -1,4 +1,6 @@
 // Обёртка над Telegram WebApp: остальной код не трогает window.Telegram напрямую.
+import { isIOS } from "./install";
+import { tap } from "./tap";
 
 type HapticImpact = "light" | "medium" | "heavy";
 type HapticNotice = "success" | "warning" | "error";
@@ -69,7 +71,8 @@ const VIBRATION: Record<HapticImpact | HapticNotice, number | number[]> = {
 export function haptic(kind: HapticImpact | HapticNotice) {
   const h = inTelegram() ? tg()?.HapticFeedback : undefined;
   if (!h) {
-    navigator.vibrate?.(VIBRATION[kind]);
+    if ("vibrate" in navigator) navigator.vibrate(VIBRATION[kind]);
+    else if (isIOS()) tap(kind === "success" || kind === "error" ? 2 : 1);
     return;
   }
   if (kind === "success" || kind === "warning" || kind === "error") h.notificationOccurred(kind);

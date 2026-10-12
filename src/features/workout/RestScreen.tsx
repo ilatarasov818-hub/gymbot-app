@@ -3,8 +3,8 @@ import { ProgressRing } from "@/ui/ProgressRing";
 import { formatRest, formatSet, formatWeight } from "@/lib/format";
 import type { ActiveWorkout } from "@/lib/types";
 
-export function RestScreen({ workout, left, busy, onSkip, onExtend }: {
-  workout: ActiveWorkout; left: number; busy: boolean; onSkip: () => void; onExtend: () => void;
+export function RestScreen({ workout, left, busy, hint, onSkip, onExtend }: {
+  workout: ActiveWorkout; left: number; busy: boolean; hint: string; onSkip: () => void; onExtend: () => void;
 }) {
   const total = workout.rest?.total ?? 1;
   const ex = workout.exercises[workout.index];
@@ -34,7 +34,7 @@ export function RestScreen({ workout, left, busy, onSkip, onExtend }: {
         <Button variant="secondary" icon="plus" disabled={busy} onClick={onExtend}>30 сек</Button>
         <Button icon="skip" disabled={busy} onClick={onSkip}>Пропустить</Button>
       </div>
-      <p className="text-center text-caption text-hint">Когда отдых закончится, телефон коротко завибрирует.</p>
+      <p className="text-center text-caption text-hint">{hint}</p>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { setUnits } from "@/lib/units";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TabBar } from "@/ui/TabBar";
 import { Button } from "@/ui/Button";
 import { Centered, Notice } from "@/ui/Notice";
@@ -19,8 +19,10 @@ import { LoginScreen } from "@/features/login/LoginScreen";
 import { api } from "@/data/api";
 import { setToken, useToken } from "@/data/session";
 import { useAppState } from "@/data/useAppState";
+import { dropPush } from "@/data/usePush";
 import { useChat } from "@/data/useChat";
 import { getParam } from "@/platform/web/location";
+import { keepScreenOn } from "@/platform/web/awake";
 import { closeApp, confirm, haptic, inTelegram } from "@/platform/web/telegram";
 import { TAB_IDS, type Tab } from "./routes";
 
@@ -31,6 +33,11 @@ const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "history", label: "История", icon: "list" },
   { id: "profile", label: "Профиль", icon: "user" },
 ];
+
+// Вне Telegram о конце отдыха в свёрнутом приложении напоминает уведомление телефона.
+const REST_HINT = inTelegram()
+  ? "Когда отдых закончится, телефон коротко завибрирует."
+  : "Свернёшь приложение — о конце отдыха напомнит уведомление (включается в Настройках).";
 
 function initialTab(): Tab {
   const t = getParam("screen") as Tab | null;
@@ -47,7 +54,7 @@ export function App() {
 }
 
 function logout() {
-  void api.logout().catch(() => undefined).finally(() => setToken(null));
+  void dropPush().then(() => api.logout()).catch(() => undefined).finally(() => setToken(null));
 }
 
 function Main() {
@@ -58,6 +65,8 @@ function Main() {
   const { state, busy, act } = app;
   const workout = state?.workout?.status === "active" ? state.workout : null;
   const restLeft = useRestLeft(workout, app.offset, () => haptic("success"));
+  const training = Boolean(workout);
+  useEffect(() => keepScreenOn(training), [training]);
 
   if (state) setUnits(state.user.units ?? "kg");
   let screen;
@@ -74,7 +83,7 @@ function Main() {
       void app.saveProfile({ name: "survey", answers }).then((done) => done && haptic("success"));
     }} />;
   } else if (workout && workout.rest && restLeft > 0) {
-    screen = <RestScreen workout={workout} left={restLeft} busy={busy}
+    screen = <RestScreen workout={workout} left={restLeft} busy={busy} hint={REST_HINT}
       onSkip={() => void act({ name: "skip" })} onExtend={() => void act({ name: "extend" })} />;
   } else if (workout) {
     screen = (

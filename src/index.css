@@ -87,4 +87,9 @@ body {
   touch-action: manipulation;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
+  /* Как в настоящем приложении: без серой вспышки при нажатии и меню по долгому нажатию на картинку. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
+img { -webkit-touch-callout: none; -webkit-user-drag: none; }
+button { -webkit-user-select: none; user-select: none; }

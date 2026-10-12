@@ -7,11 +7,13 @@ import { initTheme, setTelegramScheme } from "@/platform/web/theme";
 import { applyWallpaper } from "@/platform/web/wallpaper";
 import { startTelegram } from "@/platform/web/telegram";
 import { registerServiceWorker } from "@/platform/web/install";
+import { clearBadge } from "@/platform/web/push";
 
 initTheme(getParam("theme"));
 applyWallpaper();
 startTelegram(setTelegramScheme);
 registerServiceWorker();
+clearBadge();
 
 const root = createRoot(document.getElementById("root")!);
 const mock = getParam("mock");
