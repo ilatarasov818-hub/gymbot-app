@@ -115,7 +115,7 @@ function Main() {
     screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
       haptic("light");
       void act({ name: "start", day });
-    }} />;
+    }} onMove={async (day, to) => Boolean(await act({ name: "move", day, to }))} />;
   }
 
   const showTabs = Boolean(state?.profileReady) && !workout && !app.finished && !deleted;
