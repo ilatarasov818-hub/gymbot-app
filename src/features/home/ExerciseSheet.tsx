@@ -1,7 +1,7 @@
 import { Sheet } from "@/ui/Sheet";
 import { formatWeight } from "@/lib/format";
 import type { PlanExercise } from "@/lib/types";
-import { ExercisePicture, HowTo } from "@/features/workout/ExerciseInfoView";
+import { ExercisePicture, ExerciseVideos, HowTo } from "@/features/workout/ExerciseInfoView";
 
 export function ExerciseSheet({ exercise: ex, onClose }: { exercise: PlanExercise; onClose: () => void }) {
   const weight = ex.bodyweight ? "свой вес" : ex.weight ? `в прошлый раз ${formatWeight(ex.weight)}` : "вес подберём на тренировке";
@@ -22,6 +22,7 @@ export function ExerciseSheet({ exercise: ex, onClose }: { exercise: PlanExercis
         ) : (
           <p className="mt-4 text-body">Описания пока нет. Спроси тренера в чате — расскажет, как делать.</p>
         )}
+        <div className="mt-5"><ExerciseVideos name={ex.name} /></div>
       </div>
     </Sheet>
   );

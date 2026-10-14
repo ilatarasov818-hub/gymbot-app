@@ -9,7 +9,7 @@ import { showKg, toKg, unitName, weightStep } from "@/lib/units";
 import { minutesLeft } from "@/lib/eta";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
-import { ExercisePicture, HowTo } from "./ExerciseInfoView";
+import { ExercisePicture, ExerciseVideos, HowTo } from "./ExerciseInfoView";
 import { SkipSheet, SwapSheet } from "./ExerciseSheets";
 
 export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, onFinish }: {
@@ -65,7 +65,10 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
         </div>
       </Card>
 
-      {ex.info && ex.info.how.length > 0 && <Card title="Как делать"><HowTo info={ex.info} /></Card>}
+      <Card title="Как делать">
+        {ex.info && ex.info.how.length > 0 && <div className="mb-4"><HowTo info={ex.info} /></div>}
+        <ExerciseVideos name={ex.name} />
+      </Card>
 
       {workout.notes.length > 0 && (
         <Card title="Подсказка">
