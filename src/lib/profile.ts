@@ -41,6 +41,7 @@ export const DUMBBELL_STEPS: Option<number | null>[] = [
 ];
 
 export const STACK_STEPS: Option<number | null>[] = [
+  { value: 0.5, label: "0.5 кг", hint: "есть маленькие добавочные блины" },
   { value: 5, label: "5 кг" },
   { value: 10, label: "10 кг" },
   { value: null, label: "Не знаю", hint: "возьму обычный шаг" },
