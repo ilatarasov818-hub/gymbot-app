@@ -6,7 +6,8 @@ let current: Units = "kg";
 
 export const setUnits = (units: Units) => { current = units; };
 export const unitName = () => (current === "lb" ? "фнт" : "кг");
-export const weightStep = () => (current === "lb" ? 5 : 2.5);
+/** Шаг кнопок «+/−»: в кг — шаг оборудования из профиля, если он задан. */
+export const weightStep = (kgStep?: number | null) => (current === "lb" ? 5 : kgStep || 2.5);
 /** Килограммы → то, что видит человек. */
 export const showKg = (kg: number) => (current === "lb" ? Math.round(kg * LB) : kg);
 /** Введённое число → килограммы для бота. */

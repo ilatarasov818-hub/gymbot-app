@@ -44,7 +44,8 @@ export type ActiveWorkout = {
   startedAt: string;
   index: number;
   // weightOptional — своё упражнение вместо программы: можно и с весом, и без.
-  exercises: (Omit<PlanExercise, "weight"> & { info?: ExerciseInfo | null; weightOptional?: boolean })[];
+  // step — шаг веса этого оборудования из профиля, null — обычный.
+  exercises: (Omit<PlanExercise, "weight"> & { info?: ExerciseInfo | null; weightOptional?: boolean; step?: number | null })[];
   currentSet: number;
   weight: number | null;
   results: DoneSet[];

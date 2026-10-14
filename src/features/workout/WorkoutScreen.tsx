@@ -50,7 +50,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
         </div>
         {ex.info && <ExercisePicture info={ex.info} />}
         <div className="mt-6 flex flex-col gap-6">
-          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit={unitName()} step={weightStep()} onChange={setWeight} />}
+          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit={unitName()} step={weightStep(ex.step)} onChange={setWeight} />}
           <Stepper label="Повторения" value={reps} onChange={setReps} />
         </div>
         <div className="mt-6">
