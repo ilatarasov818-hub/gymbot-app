@@ -11,6 +11,7 @@ import { DeleteSheet, FeedbackSheet, ResetSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
 import { InstallCard } from "@/features/install/InstallCard";
 import { NotificationsCard } from "@/features/notifications/NotificationsCard";
+import { CoachMemoryCard } from "@/features/settings/CoachMemoryCard";
 import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
 import { SettingsScreen, type MeField } from "@/features/settings/SettingsScreen";
 import { ProfileScreen } from "./ProfileScreen";
@@ -169,6 +170,7 @@ export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout,
           onDelete={() => openAccount("delete")}
           onLogout={onLogout}
           notifications={<NotificationsCard />}
+          memory={<CoachMemoryCard />}
           install={<InstallCard installUrl={installUrl} />} />
       ) : (
         <ProfileScreen profile={profile} me={me} busy={busy} message={message}

@@ -1,4 +1,4 @@
-import type { ActionResult, AppState, ChatMessage, HistoryEntry, Me, Profile, ProfileResult, ProgressData, SurveyAnswers, BodyPoint } from "@/lib/types";
+import type { ActionResult, AppState, ChatMessage, Fact, HistoryEntry, Me, Profile, ProfileResult, ProgressData, SurveyAnswers, BodyPoint } from "@/lib/types";
 import { getParam } from "@/platform/web/location";
 import { inTelegram, initData } from "@/platform/web/telegram";
 import { getToken, setToken } from "./session";
@@ -95,5 +95,7 @@ export const api = {
   pushSubscribe: (subscription: PushSubscriptionJSON) => request<{ ok: boolean }>("/api/push/subscribe", { subscription }),
   pushUnsubscribe: (endpoint: string) => request<{ ok: boolean }>("/api/push/unsubscribe", { endpoint }),
   pushTest: () => request<{ ok: boolean }>("/api/push/test", {}),
+  facts: () => request<{ facts: Fact[] }>("/api/facts"),
+  factDelete: (id: number) => request<{ facts: Fact[] }>("/api/facts/delete", { id }),
   deleteData: () => request<{ message: string; deleted: boolean }>("/api/account/delete", {}),
 };
