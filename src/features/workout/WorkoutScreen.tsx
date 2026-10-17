@@ -5,9 +5,11 @@ import { Card } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { Stepper } from "@/ui/Stepper";
 import { formatSet } from "@/lib/format";
+import { showKg, toKg, unitName, weightStep } from "@/lib/units";
+import { minutesLeft } from "@/lib/eta";
 import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
-import { ExercisePicture, HowTo } from "./ExerciseInfoView";
+import { ExercisePicture, ExerciseVideos, HowTo } from "./ExerciseInfoView";
 import { SkipSheet, SwapSheet } from "./ExerciseSheets";
 
 export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, onFinish }: {
@@ -22,7 +24,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
   const { exercises, index, results } = workout;
   const ex = exercises[index];
   const last = results[results.length - 1];
-  const [weight, setWeight] = useState(last?.weight ?? workout.weight ?? 0);
+  const [weight, setWeight] = useState(() => showKg(last?.weight ?? workout.weight ?? 0));
   const [reps, setReps] = useState(last?.reps ?? ex.repsMax);
   const [extraOpen, setExtraOpen] = useState(false);
   const [sheet, setSheet] = useState<"skip" | "swap" | null>(null);
@@ -36,7 +38,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
             <span key={i} className={`h-1.5 w-6 rounded-full ${i < index ? "bg-good" : i === index ? "bg-accent" : "bg-line"}`} />
           ))}
         </div>
-        <Elapsed since={workout.startedAt} />
+        <Elapsed workout={workout} />
       </header>
 
       <Card>
@@ -48,12 +50,12 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
         </div>
         {ex.info && <ExercisePicture info={ex.info} />}
         <div className="mt-6 flex flex-col gap-6">
-          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit="кг" step={2.5} onChange={setWeight} />}
+          {!ex.bodyweight && <Stepper label="Вес" value={weight} unit={unitName()} step={weightStep(ex.step)} onChange={setWeight} />}
           <Stepper label="Повторения" value={reps} onChange={setReps} />
         </div>
         <div className="mt-6">
           <Button icon="check" disabled={busy || reps <= 0 || (needsWeight && weight <= 0)}
-            onClick={() => onSet(ex.bodyweight ? 0 : weight, reps)}>
+            onClick={() => onSet(ex.bodyweight ? 0 : toKg(weight), reps)}>
             {needsWeight && weight <= 0 ? "Укажи вес" : "Записать подход"}
           </Button>
         </div>
@@ -63,7 +65,10 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
         </div>
       </Card>
 
-      {ex.info && ex.info.how.length > 0 && <Card title="Как делать"><HowTo info={ex.info} /></Card>}
+      <Card title="Как делать">
+        {ex.info && ex.info.how.length > 0 && <div className="mb-4"><HowTo info={ex.info} /></div>}
+        <ExerciseVideos name={ex.name} />
+      </Card>
 
       {workout.notes.length > 0 && (
         <Card title="Подсказка">
@@ -103,14 +108,19 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
   );
 }
 
-function Elapsed({ since }: { since: string }) {
+function Elapsed({ workout }: { workout: ActiveWorkout }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  const seconds = Math.max(0, Math.floor((now - new Date(since).getTime()) / 1000));
+  const seconds = Math.max(0, Math.floor((now - new Date(workout.startedAt).getTime()) / 1000));
+  const left = minutesLeft(workout, seconds);
   const h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = seconds % 60;
   const text = h ? `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}` : `${m}:${String(s).padStart(2, "0")}`;
-  return <span className="flex items-center gap-1 text-caption tabular-nums text-hint"><Icon name="timer" size={16} />{text}</span>;
+  return (
+    <span className="flex shrink-0 items-center gap-1 text-caption tabular-nums text-hint">
+      <Icon name="timer" size={16} />{text}{left > 0 && <span> · ещё ~{left} мин</span>}
+    </span>
+  );
 }

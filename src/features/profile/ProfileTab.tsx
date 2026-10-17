@@ -2,20 +2,31 @@ import { useEffect, useState } from "react";
 import { Centered, Notice } from "@/ui/Notice";
 import { api, type ProfileAction } from "@/data/api";
 import { haptic } from "@/platform/web/telegram";
-import type { Profile, ProfileResult } from "@/lib/types";
-import { DeleteSheet, FeedbackSheet } from "./AccountSheets";
+import { accentPref, setAccentPref, setThemePref, themePref } from "@/platform/web/theme";
+import { DEFAULT_ACCENT } from "@/lib/accents";
+import { pickImage, pickPhoto } from "@/platform/web/image";
+import { setWallpaperPhoto, setWallpaperPref, wallpaperPhoto, wallpaperPref } from "@/platform/web/wallpaper";
+import type { Me, Profile, ProfileResult } from "@/lib/types";
+import { DeleteSheet, FeedbackSheet, ResetSheet } from "./AccountSheets";
 import { EditSheet } from "./EditSheet";
+import { InstallCard } from "@/features/install/InstallCard";
+import { NotificationsCard } from "@/features/notifications/NotificationsCard";
+import { AvatarSheet, MeSheet } from "@/features/settings/MeSheets";
+import { SettingsScreen, type MeField } from "@/features/settings/SettingsScreen";
 import { ProfileScreen } from "./ProfileScreen";
 import { SurveyScreen } from "./SurveyScreen";
 import { profileDraft, type Draft, type FieldKey } from "./questions";
 
-type Account = "feedback" | "delete";
+type Account = "feedback" | "reset" | "delete";
 
-export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
+export function ProfileTab({ busy, error: saveError, save, installUrl, onLogout, onDeleted, onMeChange }: {
   busy: boolean;
   error: string | null;
   save: (action: ProfileAction) => Promise<ProfileResult | null>;
+  installUrl: string | null;
+  onLogout?: () => void;
   onDeleted: () => void;
+  onMeChange: () => void;
 }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,10 +36,42 @@ export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
   const [account, setAccount] = useState<Account | null>(null);
   const [accountBusy, setAccountBusy] = useState(false);
   const [accountError, setAccountError] = useState<string | null>(null);
+  const [theme, setTheme] = useState(themePref);
+  const [accent, setAccent] = useState(() => accentPref() ?? DEFAULT_ACCENT);
+  const [wallpaper, setWallpaper] = useState(wallpaperPref);
+  const [wallPhoto, setWallPhoto] = useState(wallpaperPhoto);
+  const [wallError, setWallError] = useState<string | null>(null);
+  const [me, setMe] = useState<Me | null>(null);
+  const [settings, setSettings] = useState(false);
+  const [meSheet, setMeSheet] = useState<MeField | "avatar" | null>(null);
+  const [meBusy, setMeBusy] = useState(false);
+  const [meError, setMeError] = useState<string | null>(null);
 
   useEffect(() => {
     api.profile().then(setProfile, (e: Error) => setError(e.message));
+    api.me().then(setMe, (e: Error) => setError(e.message));
   }, []);
+
+  const saveMe = async (patch: Parameters<typeof api.saveMe>[0]) => {
+    setMeBusy(true);
+    setMeError(null);
+    try {
+      setMe(await api.saveMe(patch));
+      // Имя на главной и единицы веса берутся из общего состояния.
+      if ("name" in patch || "units" in patch) onMeChange();
+      haptic("success");
+      setMeSheet(null);
+    } catch (e) {
+      setMeError((e as Error).message);
+    } finally {
+      setMeBusy(false);
+    }
+  };
+
+  const pickAvatar = async () => {
+    const image = await pickImage();
+    if (image) await saveMe({ avatar: image });
+  };
 
   const run = async (action: ProfileAction) => {
     const result = await save(action);
@@ -55,6 +98,20 @@ export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
     }
   };
 
+  const resetHistory = async () => {
+    setAccountBusy(true);
+    try {
+      setMessage((await api.resetHistory()).message);
+      haptic("success");
+      openAccount(null);
+      onMeChange();
+    } catch (e) {
+      setAccountError((e as Error).message);
+    } finally {
+      setAccountBusy(false);
+    }
+  };
+
   const deleteData = async () => {
     setAccountBusy(true);
     try {
@@ -68,7 +125,20 @@ export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
   };
 
   if (error) return <Notice>{error}</Notice>;
-  if (!profile) return <Centered>Загрузка…</Centered>;
+  if (!profile || !me) return <Centered>Загрузка…</Centered>;
+
+  const pickWallpaper = async () => {
+    const photo = await pickPhoto();
+    if (!photo) return;
+    if (!setWallpaperPhoto(photo)) {
+      setWallError("Фото слишком большое для этого устройства — попробуй другое.");
+      return;
+    }
+    setWallError(null);
+    setWallPhoto(photo);
+    setWallpaper("photo");
+    haptic("success");
+  };
 
   if (restart) {
     return (
@@ -81,15 +151,47 @@ export function ProfileTab({ busy, error: saveError, save, onDeleted }: {
 
   return (
     <>
-      <ProfileScreen profile={profile} busy={busy} message={message}
-        onCloseMessage={() => setMessage(null)}
-        onEdit={setEditing}
-        onRebuild={() => void run({ name: "rebuild" })}
-        onRestart={() => { setMessage(null); setRestart(true); }}
-        onFeedback={() => openAccount("feedback")}
-        onDelete={() => openAccount("delete")} />
+      {settings ? (
+        <SettingsScreen me={me}
+          theme={theme} onTheme={(t) => { setThemePref(t); setTheme(t); haptic("light"); }}
+          accent={accent} onAccent={(a) => { setAccentPref(a); setAccent(a); haptic("light"); }}
+          wallpaper={wallpaper} wallpaperPhoto={wallPhoto} wallpaperError={wallError}
+          onWallpaper={(w) => { setWallpaperPref(w); setWallpaper(w); setWallError(null); haptic("light"); }}
+          onWallpaperPhoto={() => void pickWallpaper()}
+          onBack={() => { setMessage(null); setSettings(false); }}
+          message={message} onCloseMessage={() => setMessage(null)}
+          onAvatar={() => { setMeError(null); setMeSheet("avatar"); }}
+          onEdit={(field) => { setMeError(null); setMeSheet(field); }}
+          onSex={(sex) => void saveMe({ sex })}
+          onUnits={(units) => void saveMe({ units })}
+          onFeedback={() => openAccount("feedback")}
+          onReset={() => openAccount("reset")}
+          onDelete={() => openAccount("delete")}
+          onLogout={onLogout}
+          notifications={<NotificationsCard />}
+          install={<InstallCard installUrl={installUrl} />} />
+      ) : (
+        <ProfileScreen profile={profile} me={me} busy={busy} message={message}
+          onSettings={() => { setMessage(null); setSettings(true); }}
+          onCloseMessage={() => setMessage(null)}
+          onEdit={setEditing}
+          onRebuild={() => void run({ name: "rebuild" })}
+          onRestart={() => { setMessage(null); setRestart(true); }} />
+      )}
+      {meSheet === "avatar" && (
+        <AvatarSheet me={me} busy={meBusy} error={meError} onPick={() => void pickAvatar()} onTelegram={() => void saveMe({ avatar: "telegram" })}
+          onRemove={() => void saveMe({ avatar: null })} onClose={() => setMeSheet(null)} />
+      )}
+      {meSheet && meSheet !== "avatar" && (
+        <MeSheet field={meSheet} me={me} busy={meBusy} error={meError} onSave={(patch) => void saveMe(patch)}
+          onClose={() => setMeSheet(null)} />
+      )}
       {account === "feedback" && (
         <FeedbackSheet busy={accountBusy} error={accountError} onSend={(text) => void sendFeedback(text)}
+          onClose={() => openAccount(null)} />
+      )}
+      {account === "reset" && (
+        <ResetSheet busy={accountBusy} error={accountError} onReset={() => void resetHistory()}
           onClose={() => openAccount(null)} />
       )}
       {account === "delete" && (

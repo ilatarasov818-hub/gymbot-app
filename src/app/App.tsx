@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { setUnits } from "@/lib/units";
+import { useEffect, useState } from "react";
 import { TabBar } from "@/ui/TabBar";
 import { Button } from "@/ui/Button";
 import { Centered, Notice } from "@/ui/Notice";
@@ -14,10 +15,15 @@ import { ProfileTab } from "@/features/profile/ProfileTab";
 import { SurveyScreen } from "@/features/profile/SurveyScreen";
 import { DeletedScreen } from "@/features/profile/AccountSheets";
 import { CoachTab } from "@/features/coach/CoachTab";
+import { LoginScreen } from "@/features/login/LoginScreen";
+import { api } from "@/data/api";
+import { setToken, useToken } from "@/data/session";
 import { useAppState } from "@/data/useAppState";
+import { dropPush } from "@/data/usePush";
 import { useChat } from "@/data/useChat";
 import { getParam } from "@/platform/web/location";
-import { closeApp, confirm, haptic } from "@/platform/web/telegram";
+import { keepScreenOn } from "@/platform/web/awake";
+import { closeApp, confirm, haptic, inTelegram } from "@/platform/web/telegram";
 import { TAB_IDS, type Tab } from "./routes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -28,12 +34,30 @@ const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "profile", label: "Профиль", icon: "user" },
 ];
 
+// Вне Telegram о конце отдыха в свёрнутом приложении напоминает уведомление телефона.
+const REST_HINT = inTelegram()
+  ? "Когда отдых закончится, телефон коротко завибрирует."
+  : "Свернёшь приложение — о конце отдыха напомнит уведомление (включается в Настройках).";
+
 function initialTab(): Tab {
   const t = getParam("screen") as Tab | null;
   return t && TAB_IDS.includes(t) ? t : "home";
 }
 
+// Вне Telegram сначала вход: ключ приложения выдаёт бот.
 export function App() {
+  const token = useToken();
+  if (!inTelegram() && !token) {
+    return <main className="flex h-full flex-col overflow-y-auto px-4 pb-6 pt-[max(env(safe-area-inset-top),12px)]"><LoginScreen /></main>;
+  }
+  return <Main key={token ?? "telegram"} />;
+}
+
+function logout() {
+  void dropPush().then(() => api.logout()).catch(() => undefined).finally(() => setToken(null));
+}
+
+function Main() {
   const [tab, setTab] = useState<Tab>(initialTab);
   const app = useAppState();
   const chat = useChat();
@@ -41,10 +65,13 @@ export function App() {
   const { state, busy, act } = app;
   const workout = state?.workout?.status === "active" ? state.workout : null;
   const restLeft = useRestLeft(workout, app.offset, () => haptic("success"));
+  const training = Boolean(workout);
+  useEffect(() => keepScreenOn(training), [training]);
 
+  if (state) setUnits(state.user.units ?? "kg");
   let screen;
   if (deleted) {
-    screen = <DeletedScreen onClose={closeApp} />;
+    screen = <DeletedScreen onClose={inTelegram() ? closeApp : () => setToken(null)} />;
   } else if (app.finished) {
     screen = <FinishScreen finished={app.finished} onDone={() => { app.closeFinished(); setTab("home"); }} />;
   } else if (!state) {
@@ -56,7 +83,7 @@ export function App() {
       void app.saveProfile({ name: "survey", answers }).then((done) => done && haptic("success"));
     }} />;
   } else if (workout && workout.rest && restLeft > 0) {
-    screen = <RestScreen workout={workout} left={restLeft} busy={busy}
+    screen = <RestScreen workout={workout} left={restLeft} busy={busy} hint={REST_HINT}
       onSkip={() => void act({ name: "skip" })} onExtend={() => void act({ name: "extend" })} />;
   } else if (workout) {
     screen = (
@@ -82,12 +109,14 @@ export function App() {
   } else if (tab === "history") {
     screen = <HistoryScreen />;
   } else if (tab === "profile") {
-    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} onDeleted={() => setDeleted(true)} />;
+    screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} installUrl={state.installUrl} onMeChange={() => void app.refresh()}
+      onLogout={inTelegram() ? undefined : logout} onDeleted={() => setDeleted(true)} />;
   } else {
     screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
       haptic("light");
       void act({ name: "start", day });
-    }} />;
+    }} onMove={async (day, to) => Boolean(await act({ name: "move", day, to }))}
+      onPick={async (day, pick) => Boolean(await act({ name: "pick", day, pick }))} />;
   }
 
   const showTabs = Boolean(state?.profileReady) && !workout && !app.finished && !deleted;

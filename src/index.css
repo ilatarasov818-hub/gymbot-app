@@ -17,6 +17,36 @@
   --hint: var(--tg-theme-hint-color, #8d8e93);
   --accent: var(--tg-theme-button-color, #3e9bf0);
 }
+/* Тема выбрана вручную: свои цвета вместо цветов Telegram. */
+:root[data-fixed] {
+  --bg: #ffffff;
+  --surface: #f2f2f7;
+  --fg: #0b0b0f;
+  --hint: #8e8e93;
+  --accent: #2481cc;
+  --accent-fg: #ffffff;
+}
+:root[data-fixed][data-theme="dark"] {
+  --bg: #1c1c1e;
+  --surface: #000000;
+  --fg: #ffffff;
+  --hint: #8d8e93;
+  --accent: #3e9bf0;
+}
+
+/* Цвет кнопок и выделений, выбранный вручную (светлый / тёмный вариант). */
+:root[data-accent="blue"] { --accent: #2481cc; --accent-fg: #ffffff; }
+:root[data-accent="green"] { --accent: #1f9d55; --accent-fg: #ffffff; }
+:root[data-accent="orange"] { --accent: #e8780c; --accent-fg: #ffffff; }
+:root[data-accent="red"] { --accent: #e0353b; --accent-fg: #ffffff; }
+:root[data-accent="purple"] { --accent: #7c4ddb; --accent-fg: #ffffff; }
+:root[data-accent="pink"] { --accent: #d63384; --accent-fg: #ffffff; }
+:root[data-accent="blue"][data-theme="dark"] { --accent: #3e9bf0; }
+:root[data-accent="green"][data-theme="dark"] { --accent: #30b566; }
+:root[data-accent="orange"][data-theme="dark"] { --accent: #f08a24; }
+:root[data-accent="red"][data-theme="dark"] { --accent: #f04a50; }
+:root[data-accent="purple"][data-theme="dark"] { --accent: #9466f0; }
+:root[data-accent="pink"][data-theme="dark"] { --accent: #ec4f9c; }
 
 @theme {
   --color-bg: var(--bg);
@@ -37,6 +67,17 @@
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Обои: картинка под всем, сверху дымка цвета фона, чтобы текст читался; карточки полупрозрачные. */
+:root[data-wall] { --color-bg: color-mix(in srgb, var(--bg) 82%, transparent); }
+:root[data-wall] body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(color-mix(in srgb, var(--surface) 55%, transparent), color-mix(in srgb, var(--surface) 55%, transparent)),
+    var(--wall) center / cover no-repeat;
+}
+
 html, body, #root { height: 100%; }
 body {
   margin: 0;
@@ -46,4 +87,9 @@ body {
   touch-action: manipulation;
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
+  /* Как в настоящем приложении: без серой вспышки при нажатии и меню по долгому нажатию на картинку. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
+img { -webkit-touch-callout: none; -webkit-user-drag: none; }
+button { -webkit-user-select: none; user-select: none; }

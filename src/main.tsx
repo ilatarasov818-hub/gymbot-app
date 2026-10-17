@@ -2,11 +2,18 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { App } from "@/app/App";
-import { applyTheme, getParam } from "@/platform/web/location";
+import { getParam } from "@/platform/web/location";
+import { initTheme, setTelegramScheme } from "@/platform/web/theme";
+import { applyWallpaper } from "@/platform/web/wallpaper";
 import { startTelegram } from "@/platform/web/telegram";
+import { registerServiceWorker } from "@/platform/web/install";
+import { clearBadge } from "@/platform/web/push";
 
-applyTheme(getParam("theme"));
-startTelegram((scheme) => applyTheme(getParam("theme") ?? scheme));
+initTheme(getParam("theme"));
+applyWallpaper();
+startTelegram(setTelegramScheme);
+registerServiceWorker();
+clearBadge();
 
 const root = createRoot(document.getElementById("root")!);
 const mock = getParam("mock");

@@ -1,4 +1,5 @@
 import type { DoneSet } from "./types";
+import { showKg, unitName } from "./units";
 
 export function formatRest(seconds: number): string {
   const s = Math.max(0, Math.round(seconds));
@@ -6,11 +7,11 @@ export function formatRest(seconds: number): string {
 }
 
 export function formatWeight(weight: number | null): string {
-  return weight == null || weight === 0 ? "свой вес" : `${weight.toLocaleString("ru-RU")} кг`;
+  return weight == null || weight === 0 ? "свой вес" : `${showKg(weight).toLocaleString("ru-RU")} ${unitName()}`;
 }
 
 export function formatSet(set: DoneSet): string {
-  return set.weight ? `${set.weight.toLocaleString("ru-RU")} × ${set.reps}` : `${set.reps} повт.`;
+  return set.weight ? `${showKg(set.weight).toLocaleString("ru-RU")} × ${set.reps}` : `${set.reps} повт.`;
 }
 
 const MONTHS = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
@@ -31,4 +32,9 @@ export function plural(n: number, one: string, few: string, many: string): strin
   if (m10 === 1 && m100 !== 11) return one;
   if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
   return many;
+}
+
+/** День недели даты «2026-10-12»: пн = 0 … вс = 6. */
+export function weekdayIndex(iso: string): number {
+  return (new Date(`${iso}T12:00:00`).getDay() + 6) % 7;
 }

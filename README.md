@@ -31,3 +31,9 @@ npm run dev
 ## Рисунки упражнений
 
 Рисунки в `public/exercises/` — из [everkinetic](https://github.com/everkinetic/data) (CC BY-SA 4.0): начальный и конечный кадр собраны в одну картинку 3:4. Эти картинки распространяются на тех же условиях CC BY-SA 4.0.
+
+## Постоянный адрес (worker/)
+
+`worker/index.js` — воркер Cloudflare на https://gymbot.gymbot-f4ea8ac9.workers.dev (KV-привязка `GYM`).
+Бот сообщает ему текущий адрес туннеля (`POST /__origin`), воркер пересылает туда все запросы.
+Первый ключ бота запоминается; чтобы сменить компьютер с ботом — удалить ключ `key` в KV `gymbot`.
