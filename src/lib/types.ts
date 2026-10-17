@@ -35,6 +35,9 @@ export type DayPlan = {
   today: boolean;
   done: boolean;
   moveTo: number[]; // свободные дни до конца недели, куда можно перенести
+  pick: number | null; // день программы, поставленный на этот день вместо плана (им и запускаем)
+  insteadOf: string | null; // тренировка по плану, если поставили другую
+  pickFrom: number[]; // дни программы, которые можно поставить сюда (план — «вернуть по плану»)
   exercises: PlanExercise[];
 };
 

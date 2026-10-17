@@ -44,6 +44,7 @@ async function request<T>(path: string, body?: unknown, timeout = 15000, auth = 
 export type Action =
   | { name: "start"; day: number }
   | { name: "move"; day: number; to: number }
+  | { name: "pick"; day: number; pick: number }
   | { name: "set"; weight: number; reps: number }
   | { name: "skip" }
   | { name: "extend" }

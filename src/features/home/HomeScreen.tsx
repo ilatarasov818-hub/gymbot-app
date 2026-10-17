@@ -7,6 +7,7 @@ import { plannedMinutes } from "@/lib/eta";
 import type { AppState, DayPlan, PlanExercise } from "@/lib/types";
 import { ExerciseSheet } from "./ExerciseSheet";
 import { MoveSheet } from "./MoveSheet";
+import { PickSheet } from "./PickSheet";
 import { WeekSummaryCard } from "./WeekSummaryCard";
 
 function defaultDay(week: DayPlan[]): DayPlan | undefined {
@@ -16,13 +17,15 @@ function defaultDay(week: DayPlan[]): DayPlan | undefined {
   return week.find((d) => d.slot + 1 > now) ?? week[0];
 }
 
-export function HomeScreen({ state, busy, onStart, onMove }: {
-  state: AppState; busy: boolean; onStart: (day: number) => void; onMove: (day: number, to: number) => Promise<boolean>;
+export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
+  state: AppState; busy: boolean; onStart: (day: number) => void;
+  onMove: (day: number, to: number) => Promise<boolean>; onPick: (day: number, pick: number) => Promise<boolean>;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   const [shown, setShown] = useState<PlanExercise | null>(null);
   const [open, setOpen] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [picking, setPicking] = useState(false);
   const day = state.week.find((d) => d.day === picked) ?? defaultDay(state.week);
   const { stats } = state;
   const restDay = !state.week.some((d) => d.today);
@@ -53,6 +56,7 @@ export function HomeScreen({ state, busy, onStart, onMove }: {
                 {day.done && (day.today || picked !== null) ? " · готово ✓" : ""}
               </p>
               {day.movedFrom && <p className="text-caption text-accent">Перенесена, по плану — {day.movedFrom}</p>}
+              {day.insteadOf && <p className="text-caption text-accent">Вместо плана — {day.insteadOf}</p>}
             </div>
             <span className={`shrink-0 text-hint transition-transform ${open ? "-rotate-90" : "rotate-90"}`}>
               <Icon name="chevron" size={20} />
@@ -72,8 +76,14 @@ export function HomeScreen({ state, busy, onStart, onMove }: {
       )}
 
       {day && (
-        <Button icon="play" disabled={busy || state.workout?.status === "free"} onClick={() => onStart(day.day)}>
+        <Button icon="play" disabled={busy || state.workout?.status === "free"} onClick={() => onStart(day.pick ?? day.day)}>
           {day.today || picked !== null ? "Начать тренировку" : "Начать всё равно"}
+        </Button>
+      )}
+
+      {day && day.pickFrom.length > 0 && !state.workout && (
+        <Button icon="swap" variant="secondary" size="md" disabled={busy} onClick={() => setPicking(true)}>
+          Другая тренировка из плана
         </Button>
       )}
 
@@ -88,6 +98,15 @@ export function HomeScreen({ state, busy, onStart, onMove }: {
           if (await onMove(day.day, to)) {
             setPicked(day.day);
             setMoving(false);
+          }
+        }} />
+      )}
+
+      {picking && day && (
+        <PickSheet day={day} week={state.week} busy={busy} onClose={() => setPicking(false)} onPick={async (pick) => {
+          if (await onPick(day.day, pick)) {
+            setPicked(day.day);
+            setPicking(false);
           }
         }} />
       )}
