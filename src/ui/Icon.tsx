@@ -25,6 +25,8 @@ const PATHS = {
   bell: "M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 21h4",
   logout: "M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h10",
   calendar: "M4 6h16v14H4zM4 10h16M8 3v4m8-4v4",
+  bolt: "M13 2 4 14h7l-1 8 9-12h-7z",
+  share: "M12 3v12m0-12-4 4m4-4 4 4M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7",
 } as const;
 
 export type IconName = keyof typeof PATHS;

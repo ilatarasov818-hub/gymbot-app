@@ -18,7 +18,7 @@ function defaultDay(week: DayPlan[]): DayPlan | undefined {
 }
 
 export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
-  state: AppState; busy: boolean; onStart: (day: number) => void;
+  state: AppState; busy: boolean; onStart: (day: number, short?: boolean) => void;
   onMove: (day: number, to: number) => Promise<boolean>; onPick: (day: number, pick: number) => Promise<boolean>;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
@@ -76,9 +76,17 @@ export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
       )}
 
       {day && (
-        <Button icon="play" disabled={busy || state.workout?.status === "free"} onClick={() => onStart(day.pick ?? day.day)}>
-          {day.today || picked !== null ? "Начать тренировку" : "Начать всё равно"}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button icon="play" disabled={busy || state.workout?.status === "free"} onClick={() => onStart(day.pick ?? day.day)}>
+            {day.today || picked !== null ? "Начать тренировку" : "Начать всё равно"}
+          </Button>
+          {/* Мало времени — только самое важное из плана. */}
+          {day.short && !state.workout && (
+            <Button icon="bolt" variant="secondary" size="md" disabled={busy} onClick={() => onStart(day.pick ?? day.day, true)}>
+              Коротко, 30 мин
+            </Button>
+          )}
+        </div>
       )}
 
       {day && day.pickFrom.length > 0 && !state.workout && (
