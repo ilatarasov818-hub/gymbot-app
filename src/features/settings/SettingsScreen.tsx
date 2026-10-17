@@ -21,7 +21,7 @@ const Value = ({ children }: { children: ReactNode }) => (
   <span className="flex max-w-48 items-center gap-1"><span className="truncate">{children}</span><Icon name="chevron" size={16} /></span>
 );
 
-export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper, wallpaperPhoto, onWallpaper, onWallpaperPhoto, wallpaperError, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, notifications, message, onCloseMessage }: {
+export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper, wallpaperPhoto, onWallpaper, onWallpaperPhoto, wallpaperError, onBack, onAvatar, onEdit, onSex, onUnits, onFeedback, onReset, onDelete, onLogout, install, notifications, memory, message, onCloseMessage }: {
   me: Me;
   theme: ThemePref;
   onTheme: (theme: ThemePref) => void;
@@ -43,6 +43,7 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper
   onLogout?: () => void;
   install?: ReactNode;
   notifications?: ReactNode;
+  memory?: ReactNode;
   message?: string | null;
   onCloseMessage?: () => void;
 }) {
@@ -75,6 +76,8 @@ export function SettingsScreen({ me, theme, onTheme, accent, onAccent, wallpaper
         </div>
         <p className="mt-3 text-caption text-hint">Тренер обращается к тебе по имени и учитывает эти данные в советах.</p>
       </Card>
+
+      {memory}
 
       <Card title="Единицы веса">
         <Segmented options={UNITS} value={me.units} onPick={onUnits} />

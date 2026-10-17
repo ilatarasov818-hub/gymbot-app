@@ -153,6 +153,9 @@ export type ProfileResult = { message: string; profile: Profile; state: AppState
 
 export type ChatMessage = { role: "user" | "assistant"; text: string };
 
+// Что тренер помнит о человеке надолго (травмы, график, «запомни …»).
+export type Fact = { id: number; text: string; created_at: string };
+
 export type Sex = "m" | "f";
 export type Units = "kg" | "lb";
 // Личные данные из «Настроек»: имя видит и тренер в чате.

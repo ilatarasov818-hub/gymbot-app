@@ -43,7 +43,7 @@ export function ChatScreen({ messages, thinking, error, onSend, onNewTopic, onCl
       {messages.length === 0 && !thinking ? (
         <div className="flex flex-col gap-3">
           <p className="text-body text-hint">
-            Спрашивай про технику, питание, восстановление. Я вижу твой профиль, программу и последние тренировки.
+            Спрашивай про технику, питание, восстановление. Я вижу твой профиль, программу и последние тренировки. Скажи «запомни …» — учту надолго.
           </p>
           {SUGGESTIONS.map((s) => (
             <button key={s} type="button" onClick={() => void send(s)}
