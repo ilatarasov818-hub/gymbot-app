@@ -53,7 +53,7 @@ const SUMMARY: WeekSummary = {
 };
 const DAY = (title: string, day: number, today = false) => ({
   day, slot: day, weekday: ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"][day], title, today, done: false,
-  movedFrom: null, moveTo: [1, 3, 5, 6],
+  movedFrom: null, moveTo: [1, 3, 5, 6], pick: null, insteadOf: null, pickFrom: [2, 4],
   exercises: [
     { name: "Жим лёжа", sets: 3, repsMin: 6, repsMax: 10, bodyweight: false, weight: 70 },
     { name: "Приседания", sets: 3, repsMin: 6, repsMax: 10, bodyweight: false, weight: 90 },
@@ -158,7 +158,7 @@ export function Mockups({ name }: { name: string }) {
     case "achievement": return <Shell tab="progress"><h1 className="pt-2 text-[28px] font-bold">Прогресс</h1><AchievementsCard items={ACH} openId="perfect" /></Shell>;
     case "finish-ach": return <Shell tabs={false}><FinishScreen onDone={noop} finished={{ title: "Full Body A", duration: "52 мин", sets: 18, volume: 6240, report: "📊 Итог тренировки\n⏱ Время: 52 мин\n📈 Прогресс:\n• Жим лёжа: вес 67.5 → 70 кг",
       achievements: [{ icon: "calendar", title: "Идеальная неделя", level: 1, levelText: "1 неделя" }, { icon: "chart", title: "Рекорды", level: 2, levelText: "10 рекордов" }] }} /></Shell>;
-    case "summary": return <Shell tab="home"><HomeScreen state={STATE} busy={false} onStart={noop} onMove={async () => true} /></Shell>;
+    case "summary": return <Shell tab="home"><HomeScreen state={STATE} busy={false} onStart={noop} onMove={async () => true} onPick={async () => true} /></Shell>;
     case "body": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
     case "body-empty": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })), body: [] }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
     case "body-sheet": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /><BodyWeightSheet last={82.4} busy={false} onSave={noop} onClose={noop} /></Shell>;
