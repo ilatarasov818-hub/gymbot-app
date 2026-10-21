@@ -9,11 +9,12 @@ import { showKg } from "@/lib/units";
 import { progressSummary } from "@/lib/progress";
 import { api } from "@/data/api";
 import { useLoad } from "@/data/useAppState";
-import type { BodyPoint, ProgressData } from "@/lib/types";
+import type { BodyPoint, MonthSummary, ProgressData } from "@/lib/types";
 import { BodyWeightCard, BodyWeightSheet } from "./BodyWeight";
 import { AchievementsCard } from "./Achievements";
+import { MonthSummaryCard } from "./MonthSummaryCard";
 
-export function ProgressScreen() {
+export function ProgressScreen({ month = null }: { month?: MonthSummary | null }) {
   const { data, error } = useLoad(api.progress);
   const [picked, setPicked] = useState<string | null>(null);
   const [body, setBody] = useState<BodyPoint[] | null>(null);
@@ -38,7 +39,7 @@ export function ProgressScreen() {
 
   return (
     <>
-      <ProgressView data={{ ...data, body: points }} picked={picked} onPick={setPicked}
+      <ProgressView data={{ ...data, body: points }} month={month} picked={picked} onPick={setPicked}
         onAddWeight={() => { setSaveError(null); setSheet(true); }} />
       {sheet && (
         <BodyWeightSheet last={points.at(-1)?.weight ?? null} busy={saving} error={saveError}
@@ -48,15 +49,17 @@ export function ProgressScreen() {
   );
 }
 
-export function ProgressView({ data, picked, onPick, onAddWeight }: {
-  data: ProgressData; picked: string | null; onPick: (name: string) => void; onAddWeight: () => void;
+export function ProgressView({ data, month = null, picked, onPick, onAddWeight }: {
+  data: ProgressData; month?: MonthSummary | null; picked: string | null; onPick: (name: string) => void; onAddWeight: () => void;
 }) {
+  const monthCard = month && <MonthSummaryCard summary={month} />;
   const body = <BodyWeightCard points={data.body ?? []} onAdd={onAddWeight} />;
   const exercises = data.exercises.filter((e) => e.points.length > 0);
   if (exercises.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
+        {monthCard}
         <AchievementsCard items={data.achievements} />
         {body}
         <p className="text-center text-caption text-hint">Здесь появятся графики рабочих весов после первой тренировки.</p>
@@ -70,6 +73,7 @@ export function ProgressView({ data, picked, onPick, onAddWeight }: {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
+      {monthCard}
       <AchievementsCard items={data.achievements} />
       {body}
       <Chips items={exercises.map((e) => e.name)} value={current.name} onChange={onPick} />

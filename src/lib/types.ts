@@ -38,6 +38,7 @@ export type DayPlan = {
   pick: number | null; // день программы, поставленный на этот день вместо плана (им и запускаем)
   insteadOf: string | null; // тренировка по плану, если поставили другую
   pickFrom: number[]; // дни программы, которые можно поставить сюда (план — «вернуть по плану»)
+  short?: boolean; // план длиннее получаса — можно «Коротко, 30 мин»
   exercises: PlanExercise[];
 };
 
@@ -73,6 +74,7 @@ export type AppState = {
   week: DayPlan[];
   workout: Workout | null;
   summary?: WeekSummary | null;
+  monthSummary?: MonthSummary | null; // итог прошлого месяца — первые 7 дней нового
 };
 
 export type MedalLevel = 0 | 1 | 2 | 3;
@@ -112,6 +114,20 @@ export type WeekSummary = {
   planned: number;
   records: { name: string; weight: number }[];
   stalled: { name: string; weight: number; weeks: number }[];
+  body: { weight: number; delta: number | null } | null;
+  advice: string;
+};
+
+// Итог месяца: приходит 1-го числа, виден во вкладке «Прогресс» неделю.
+export type MonthSummary = {
+  month: string; // «2026-09»
+  title: string; // «сентябрь»
+  workouts: number;
+  sets: number;
+  tonnage: number; // кг
+  gains: { name: string; start: number; end: number; gain: number }[];
+  records: { name: string; weight: number }[];
+  recordsCount: number;
   body: { weight: number; delta: number | null } | null;
   advice: string;
 };

@@ -105,16 +105,16 @@ function Main() {
   } else if (tab === "coach") {
     screen = <CoachTab chat={chat} />;
   } else if (tab === "progress") {
-    screen = <ProgressScreen />;
+    screen = <ProgressScreen month={state.monthSummary ?? null} />;
   } else if (tab === "history") {
     screen = <HistoryScreen />;
   } else if (tab === "profile") {
     screen = <ProfileTab busy={busy} error={app.error} save={app.saveProfile} installUrl={state.installUrl} onMeChange={() => void app.refresh()}
       onLogout={inTelegram() ? undefined : logout} onDeleted={() => setDeleted(true)} />;
   } else {
-    screen = <HomeScreen state={state} busy={busy} onStart={(day) => {
+    screen = <HomeScreen state={state} busy={busy} onStart={(day, short) => {
       haptic("light");
-      void act({ name: "start", day });
+      void act({ name: "start", day, short });
     }} onMove={async (day, to) => Boolean(await act({ name: "move", day, to }))}
       onPick={async (day, pick) => Boolean(await act({ name: "pick", day, pick }))} />;
   }
