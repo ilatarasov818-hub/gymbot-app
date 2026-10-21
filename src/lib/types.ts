@@ -132,10 +132,18 @@ export type MonthSummary = {
   advice: string;
 };
 
+export type HistoryExercise = { name: string; sets: DoneSet[]; prev: number | null; record: boolean };
+
 export type HistoryEntry = {
   date: string;
+  title: string;
   minutes: number;
-  exercises: { name: string; sets: DoneSet[] }[];
+  /** Поднято за тренировку, кг. */
+  tonnage: number;
+  /** В скольких упражнениях вес вырос к прошлому разу. */
+  grown: number;
+  records: { name: string; weight: number }[];
+  exercises: HistoryExercise[];
 };
 
 export type Profile = {
