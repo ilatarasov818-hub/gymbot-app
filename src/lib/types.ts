@@ -24,7 +24,11 @@ export type PlanExercise = {
   bodyweight: boolean;
   weight: number | null; // последний рабочий вес, null — нет истории или свой вес
   info?: ExerciseInfo | null; // техника для просмотра с главной
+  note?: string | null; // своя заметка: «сиденье на 4, узкий хват»
 };
+
+// Разминочный подход: вес в кг, в историю не пишется.
+export type WarmupSet = { weight: number; reps: number };
 
 export type DayPlan = {
   day: number; // день программы — им запускаем и переносим
@@ -54,6 +58,7 @@ export type ActiveWorkout = {
   weight: number | null;
   results: DoneSet[];
   notes: string[];
+  warmup?: WarmupSet[]; // разминка перед первым рабочим подходом текущего упражнения
   rest: { endsAt: number; total: number } | null;
   awaitingExtra: boolean;
   canLater: boolean; // текущее упражнение можно отложить в конец

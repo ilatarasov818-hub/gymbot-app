@@ -95,6 +95,7 @@ function Main() {
         onExtra={async (extra) => Boolean(await act({ name: "extra", ...extra }))}
         onSkip={async (later) => Boolean(await act({ name: "skipExercise", later }))}
         onSwap={async (exercise) => Boolean(await act({ name: "swap", exercise }))}
+        onNote={async (exercise, note) => Boolean(await act({ name: "note", exercise, note }))}
         onFinish={async () => {
           if (await confirm("Закончить тренировку? Все сделанные подходы сохранятся.")) {
             const done = await act({ name: "finish" });
@@ -116,7 +117,8 @@ function Main() {
       haptic("light");
       void act({ name: "start", day, short });
     }} onMove={async (day, to) => Boolean(await act({ name: "move", day, to }))}
-      onPick={async (day, pick) => Boolean(await act({ name: "pick", day, pick }))} />;
+      onPick={async (day, pick) => Boolean(await act({ name: "pick", day, pick }))}
+      onNote={async (exercise, note) => Boolean(await act({ name: "note", exercise, note }))} />;
   }
 
   const showTabs = Boolean(state?.profileReady) && !workout && !app.finished && !deleted;

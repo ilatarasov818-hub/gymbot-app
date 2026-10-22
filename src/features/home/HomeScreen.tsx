@@ -18,9 +18,10 @@ function defaultDay(week: DayPlan[]): DayPlan | undefined {
   return week.find((d) => d.slot + 1 > now) ?? week[0];
 }
 
-export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
+export function HomeScreen({ state, busy, onStart, onMove, onPick, onNote }: {
   state: AppState; busy: boolean; onStart: (day: number, short?: boolean) => void;
   onMove: (day: number, to: number) => Promise<boolean>; onPick: (day: number, pick: number) => Promise<boolean>;
+  onNote: (exercise: string, note: string) => Promise<boolean>;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   const [shown, setShown] = useState<PlanExercise | null>(null);
@@ -120,7 +121,11 @@ export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
         }} />
       )}
 
-      {shown && <ExerciseSheet exercise={shown} onClose={() => setShown(null)} />}
+      {/* Заметка — свежая из состояния: после сохранения карточка не устаревает. */}
+      {shown && (
+        <ExerciseSheet exercise={shown} busy={busy} onClose={() => setShown(null)} onNote={onNote}
+          note={state.week.flatMap((d) => d.exercises).find((e) => e.name === shown.name)?.note} />
+      )}
     </div>
   );
 }
