@@ -70,7 +70,8 @@ export type AppState = {
   installUrl: string | null; // постоянный адрес — по нему приложение ставят на экран телефона
   today: string;
   serverTime: number;
-  stats: { monthWorkouts: number; streakWeeks: number };
+  // streakWeeks — недели хоть с одной тренировкой; streak — недели, когда сделан весь план.
+  stats: { monthWorkouts: number; streakWeeks: number; streak?: WeekStreak };
   week: DayPlan[];
   workout: Workout | null;
   summary?: WeekSummary | null;
@@ -106,7 +107,18 @@ export type ExerciseProgress = { name: string; points: ProgressPoint[] };
 
 export type BodyPoint = { date: string; weight: number }; // вес тела, кг
 
-export type ProgressData = { exercises: ExerciseProgress[]; achievements: Achievement[]; body?: BodyPoint[] };
+export type ProgressData = { exercises: ExerciseProgress[]; achievements: Achievement[]; body?: BodyPoint[]; streak?: WeekStreak };
+
+// Серия: недели подряд, когда сделаны все тренировки из плана. Текущая неделя только добавляет.
+export type WeekStreak = { weeks: number; best: number; thisWeek: { done: number; planned: number } };
+
+// Одно упражнение за всё время: лучший подход каждой тренировки (без веса — максимум повторов).
+export type ExerciseHistory = {
+  name: string;
+  bodyweight: boolean;
+  points: ProgressPoint[];
+  sessions: { date: string; sets: DoneSet[] }[]; // последние, новые сверху
+};
 
 // Итог недели: с вечера воскресенья до конца понедельника.
 export type WeekSummary = {
@@ -115,6 +127,7 @@ export type WeekSummary = {
   records: { name: string; weight: number }[];
   stalled: { name: string; weight: number; weeks: number }[];
   body: { weight: number; delta: number | null } | null;
+  streak?: string | null; // «🔥 Серия: 3 недели подряд»
   advice: string;
 };
 

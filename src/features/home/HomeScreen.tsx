@@ -4,7 +4,8 @@ import { Card, Row } from "@/ui/Card";
 import { Icon } from "@/ui/Icon";
 import { formatWeight, plural } from "@/lib/format";
 import { plannedMinutes } from "@/lib/eta";
-import type { AppState, DayPlan, PlanExercise } from "@/lib/types";
+import { streakChip, weekProgress, weekShare } from "@/lib/streak";
+import type { AppState, DayPlan, PlanExercise, WeekStreak } from "@/lib/types";
 import { ExerciseSheet } from "./ExerciseSheet";
 import { MoveSheet } from "./MoveSheet";
 import { PickSheet } from "./PickSheet";
@@ -36,7 +37,7 @@ export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
         <h1 className="text-[28px] font-bold leading-tight">Привет{state.user.name ? `, ${state.user.name}` : ""} 👋</h1>
       </header>
 
-      <WeekStrip week={state.week} selected={day?.day} streakWeeks={stats.streakWeeks}
+      <WeekStrip week={state.week} selected={day?.day} streakWeeks={stats.streakWeeks} streak={stats.streak}
         monthWorkouts={stats.monthWorkouts} onPick={(d) => { setPicked(d); setOpen(false); }} />
 
       {state.summary && <WeekSummaryCard summary={state.summary} />}
@@ -127,17 +128,24 @@ export function HomeScreen({ state, busy, onStart, onMove, onPick }: {
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
 /** Неделя кружками: галочка — тренировка сделана, рамка — выбранный день, точка — сегодня, без кружка — отдых. */
-function WeekStrip({ week, selected, streakWeeks, monthWorkouts, onPick }: {
-  week: DayPlan[]; selected?: number; streakWeeks: number; monthWorkouts: number; onPick: (day: number) => void;
+function WeekStrip({ week, selected, streakWeeks, streak, monthWorkouts, onPick }: {
+  week: DayPlan[]; selected?: number; streakWeeks: number; streak?: WeekStreak; monthWorkouts: number; onPick: (day: number) => void;
 }) {
   const todayIndex = (new Date().getDay() || 7) - 1;
-  const note = streakWeeks
+  // Серия по плану, если бот её прислал; иначе — прежняя «недели с тренировками».
+  const chip = streak ? streakChip(streak) : "";
+  const note = chip ? "" : !streak && streakWeeks
     ? `🔥 ${streakWeeks} нед. подряд`
     : monthWorkouts ? `${monthWorkouts} ${plural(monthWorkouts, "тренировка", "тренировки", "тренировок")} за месяц` : "";
   return (
     <section className="rounded-card bg-bg p-4">
-      <header className="mb-3 flex items-center justify-between">
+      <header className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-caption font-semibold uppercase tracking-wide text-hint">Неделя</h2>
+        {chip && (
+          <span className="rounded-full border border-accent/60 bg-accent/12 px-3 py-1 text-caption font-semibold text-accent shadow-[0_0_12px_-3px_var(--accent)]">
+            {chip}
+          </span>
+        )}
         {note && <span className="text-caption font-semibold">{note}</span>}
       </header>
       <div className="grid grid-cols-7 gap-1">
@@ -161,6 +169,15 @@ function WeekStrip({ week, selected, streakWeeks, monthWorkouts, onPick }: {
           );
         })}
       </div>
+      {streak && streak.thisWeek.planned > 0 && (
+        <div className="mt-3 flex items-center gap-3">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <div className={`h-full rounded-full ${weekShare(streak) >= 1 ? "bg-good shadow-[0_0_8px_var(--color-good)]" : "bg-accent shadow-[0_0_8px_var(--accent)]"}`}
+              style={{ width: `${Math.max(weekShare(streak) * 100, 3)}%` }} />
+          </div>
+          <span className="shrink-0 text-caption text-hint tabular-nums">{weekProgress(streak)}</span>
+        </div>
+      )}
     </section>
   );
 }

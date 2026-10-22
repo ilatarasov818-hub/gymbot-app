@@ -30,6 +30,7 @@ export function WeekSummaryCard({ summary: s }: { summary: WeekSummary }) {
             {s.body.delta ? <span className="text-hint"> ({s.body.delta > 0 ? "+" : "−"}{formatWeight(Math.abs(s.body.delta))} за неделю)</span> : null}
           </Line>
         )}
+        {s.streak && <Line icon={[...s.streak][0]}>{s.streak.slice([...s.streak][0].length).trim()}</Line>}
       </ul>
       {s.advice && <p className="mt-4 rounded-2xl bg-surface p-3 text-caption">💬 {s.advice}</p>}
     </Card>
