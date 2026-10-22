@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { TabBar } from "@/ui/TabBar";
 import { Button } from "@/ui/Button";
 import { Centered, Notice } from "@/ui/Notice";
+import { MaintenanceNotice } from "@/features/maintenance/MaintenanceNotice";
 import type { IconName } from "@/ui/Icon";
 import { HomeScreen } from "@/features/home/HomeScreen";
 import { WorkoutScreen } from "@/features/workout/WorkoutScreen";
@@ -126,6 +127,7 @@ function Main() {
     <div className="flex h-full flex-col">
       <main className="flex flex-1 flex-col gap-3 overflow-y-auto px-4 pb-6 pt-[max(env(safe-area-inset-top),12px)]">
         {state && app.error && !deleted && <Notice onClose={app.clearError}>{app.error}</Notice>}
+        {state?.maintenance && <MaintenanceNotice at={state.maintenance.at} serverTime={state.serverTime} />}
         {screen}
       </main>
       {showTabs && <TabBar tabs={TABS} value={tab} onChange={setTab} />}
