@@ -75,6 +75,8 @@ export type AppState = {
   installUrl: string | null; // постоянный адрес — по нему приложение ставят на экран телефона
   today: string;
   serverTime: number;
+  /** Скоро перезапуск бота на новую версию (unix-время, сек). */
+  maintenance?: { at: number } | null;
   // streakWeeks — недели хоть с одной тренировкой; streak — недели, когда сделан весь план.
   stats: { monthWorkouts: number; streakWeeks: number; streak?: WeekStreak };
   week: DayPlan[];
