@@ -1,4 +1,4 @@
-import type { ActionResult, AppState, ChatMessage, Fact, HistoryEntry, Me, Profile, ProfileResult, ProgressData, SurveyAnswers, BodyPoint } from "@/lib/types";
+import type { ActionResult, AppState, ChatMessage, ExerciseHistory, Fact, HistoryEntry, Me, Profile, ProfileResult, ProgressData, SurveyAnswers, BodyPoint } from "@/lib/types";
 import { getParam } from "@/platform/web/location";
 import { inTelegram, initData } from "@/platform/web/telegram";
 import { getToken, setToken } from "./session";
@@ -71,6 +71,7 @@ export const api = {
   progress: () => request<ProgressData>("/api/progress"),
   addBodyWeight: (weight: number) => request<{ body: BodyPoint[] }>("/api/body/add", { weight }),
   history: () => request<{ workouts: HistoryEntry[] }>("/api/history"),
+  exercise: (name: string) => request<ExerciseHistory>(`/api/exercise?name=${encodeURIComponent(name)}`),
   act: ({ name, ...body }: Action) => {
     const payload = name === "extra" && "title" in body ? { ...body, name: body.title } : body;
     return request<ActionResult>(`/api/action/${name}`, payload);

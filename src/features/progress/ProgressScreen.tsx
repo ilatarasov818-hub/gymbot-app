@@ -13,6 +13,7 @@ import type { BodyPoint, MonthSummary, ProgressData } from "@/lib/types";
 import { BodyWeightCard, BodyWeightSheet } from "./BodyWeight";
 import { AchievementsCard } from "./Achievements";
 import { MonthSummaryCard } from "./MonthSummaryCard";
+import { StreakTile } from "./StreakTile";
 
 export function ProgressScreen({ month = null }: { month?: MonthSummary | null }) {
   const { data, error } = useLoad(api.progress);
@@ -53,6 +54,7 @@ export function ProgressView({ data, month = null, picked, onPick, onAddWeight }
   data: ProgressData; month?: MonthSummary | null; picked: string | null; onPick: (name: string) => void; onAddWeight: () => void;
 }) {
   const monthCard = month && <MonthSummaryCard summary={month} />;
+  const streak = data.streak && <StreakTile streak={data.streak} />;
   const body = <BodyWeightCard points={data.body ?? []} onAdd={onAddWeight} />;
   const exercises = data.exercises.filter((e) => e.points.length > 0);
   if (exercises.length === 0) {
@@ -60,6 +62,7 @@ export function ProgressView({ data, month = null, picked, onPick, onAddWeight }
       <div className="flex flex-col gap-4">
         <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
         {monthCard}
+        {streak}
         <AchievementsCard items={data.achievements} />
         {body}
         <p className="text-center text-caption text-hint">Здесь появятся графики рабочих весов после первой тренировки.</p>
@@ -74,6 +77,7 @@ export function ProgressView({ data, month = null, picked, onPick, onAddWeight }
     <div className="flex flex-col gap-4">
       <h1 className="pt-2 text-[28px] font-bold">Прогресс</h1>
       {monthCard}
+      {streak}
       <AchievementsCard items={data.achievements} />
       {body}
       <Chips items={exercises.map((e) => e.name)} value={current.name} onChange={onPick} />
