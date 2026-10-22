@@ -51,6 +51,7 @@ export type Action =
   | { name: "finish" }
   | { name: "skipExercise"; later: boolean }
   | { name: "swap"; exercise: string }
+  | { name: "note"; exercise: string; note: string }
   | { name: "extra"; title: string; weight: number; reps: number[] };
 
 // Замены под ограничения подбирает ИИ — это бывает долго.

@@ -100,7 +100,7 @@ const WORKOUT = (info: ActiveWorkout["exercises"][number]["info"], name = "Сг�
 });
 const workout = (w: ActiveWorkout) => (
   <WorkoutScreen workout={w} busy={false} onSet={noop} onExtra={async () => true}
-    onSkip={async () => true} onSwap={async () => true} onFinish={noop} />
+    onSkip={async () => true} onSwap={async () => true} onNote={async () => true} onFinish={noop} />
 );
 
 const TABS = [
@@ -158,7 +158,7 @@ export function Mockups({ name }: { name: string }) {
     case "achievement": return <Shell tab="progress"><h1 className="pt-2 text-[28px] font-bold">Прогресс</h1><AchievementsCard items={ACH} openId="perfect" /></Shell>;
     case "finish-ach": return <Shell tabs={false}><FinishScreen onDone={noop} finished={{ title: "Full Body A", duration: "52 мин", sets: 18, volume: 6240, report: "📊 Итог тренировки\n⏱ Время: 52 мин\n📈 Прогресс:\n• Жим лёжа: вес 67.5 → 70 кг",
       achievements: [{ icon: "calendar", title: "Идеальная неделя", level: 1, levelText: "1 неделя" }, { icon: "chart", title: "Рекорды", level: 2, levelText: "10 рекордов" }] }} /></Shell>;
-    case "summary": return <Shell tab="home"><HomeScreen state={STATE} busy={false} onStart={noop} onMove={async () => true} onPick={async () => true} /></Shell>;
+    case "summary": return <Shell tab="home"><HomeScreen state={STATE} busy={false} onStart={noop} onMove={async () => true} onPick={async () => true} onNote={async () => true} /></Shell>;
     case "body": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
     case "body-empty": return <Shell tab="progress"><ProgressView data={{ exercises: [], achievements: ACH.map((a) => ({ ...a, level: 0, progress: 0 })), body: [] }} picked={null} onPick={noop} onAddWeight={noop} /></Shell>;
     case "body-sheet": return <Shell tab="progress"><ProgressView data={{ exercises: [{ name: "Жим лёжа", points: POINTS }], achievements: ACH, body: BODY }} picked={null} onPick={noop} onAddWeight={noop} /><BodyWeightSheet last={82.4} busy={false} onSave={noop} onClose={noop} /></Shell>;

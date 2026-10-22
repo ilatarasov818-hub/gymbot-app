@@ -11,14 +11,17 @@ import type { ActiveWorkout } from "@/lib/types";
 import { ExtraSheet, type Extra } from "./ExtraSheet";
 import { ExercisePicture, ExerciseVideos, HowTo } from "./ExerciseInfoView";
 import { SkipSheet, SwapSheet } from "./ExerciseSheets";
+import { NoteLine, NoteSheet } from "./ExerciseNote";
+import { WarmupCard } from "./WarmupCard";
 
-export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, onFinish }: {
+export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, onNote, onFinish }: {
   workout: ActiveWorkout;
   busy: boolean;
   onSet: (weight: number, reps: number) => void;
   onExtra: (extra: Extra) => Promise<boolean>;
   onSkip: (later: boolean) => Promise<boolean>;
   onSwap: (exercise: string) => Promise<boolean>;
+  onNote: (exercise: string, note: string) => Promise<boolean>;
   onFinish: () => void;
 }) {
   const { exercises, index, results } = workout;
@@ -27,7 +30,7 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
   const [weight, setWeight] = useState(() => showKg(last?.weight ?? workout.weight ?? 0));
   const [reps, setReps] = useState(last?.reps ?? ex.repsMax);
   const [extraOpen, setExtraOpen] = useState(false);
-  const [sheet, setSheet] = useState<"skip" | "swap" | null>(null);
+  const [sheet, setSheet] = useState<"skip" | "swap" | "note" | null>(null);
   const needsWeight = !ex.bodyweight && !ex.weightOptional;
 
   return (
@@ -44,10 +47,12 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
       <Card>
         <p className="text-caption text-hint">{workout.dayName} · {index + 1} из {exercises.length}</p>
         <h1 className="mt-1 text-title font-bold leading-tight">{ex.name}</h1>
+        <NoteLine note={ex.note} disabled={busy} onEdit={() => setSheet("note")} />
         <div className="mt-3 flex flex-wrap gap-2">
           <Badge>Подход {workout.currentSet} из {ex.sets}</Badge>
           <Badge>Цель {ex.repsMin}–{ex.repsMax} повт.</Badge>
         </div>
+        {results.length === 0 && workout.warmup && workout.warmup.length > 0 && <WarmupCard sets={workout.warmup} />}
         {ex.info && <ExercisePicture info={ex.info} />}
         <div className="mt-6 flex flex-col gap-6">
           {!ex.bodyweight && <Stepper label="Вес" value={weight} unit={unitName()} step={weightStep(ex.step)} onChange={setWeight} />}
@@ -99,6 +104,10 @@ export function WorkoutScreen({ workout, busy, onSet, onExtra, onSkip, onSwap, o
       {sheet === "swap" && (
         <SwapSheet name={ex.name} muscles={ex.info?.mainText ?? ""} options={workout.swapOptions} busy={busy}
           onClose={() => setSheet(null)} onSwap={async (exercise) => { if (await onSwap(exercise)) setSheet(null); }} />
+      )}
+      {sheet === "note" && (
+        <NoteSheet name={ex.name} note={ex.note} busy={busy}
+          onClose={() => setSheet(null)} onSave={async (note) => { if (await onNote(ex.name, note)) setSheet(null); }} />
       )}
       {extraOpen && (
         <ExtraSheet busy={busy} onClose={() => setExtraOpen(false)}
