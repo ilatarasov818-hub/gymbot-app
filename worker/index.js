@@ -10,6 +10,19 @@ const OFFLINE_PAGE = `<!doctype html><html lang="ru"><head><meta charset="utf-8"
 <body style="font-family:-apple-system,system-ui,sans-serif;display:flex;min-height:90vh;align-items:center;justify-content:center;text-align:center;padding:24px;color:#8e8e93">
 <div><div style="font-size:56px">😴</div><p>Бот сейчас недоступен.<br>Попробуй через пару минут.</p></div></body></html>`;
 
+// Подтверждение для Android-приложения (RuStore): без него оно открывается с адресной строкой.
+// Отпечаток — от ключа подписи приложения, ключ хранится вне репозитория.
+const ASSET_LINKS = [{
+  relation: ["delegate_permission/common.handle_all_urls"],
+  target: {
+    namespace: "android_app",
+    package_name: "ru.gymbot.coach",
+    sha256_cert_fingerprints: [
+      "11:33:C3:A1:D2:E0:EF:8E:74:11:06:E8:B4:D8:55:1E:6D:0D:C4:33:EE:D2:67:48:78:8C:51:76:DD:75:09:82",
+    ],
+  },
+}];
+
 async function sha256(text) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -43,6 +56,7 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === "/__origin" && request.method === "POST") return setOrigin(request, env);
+    if (url.pathname === "/.well-known/assetlinks.json") return Response.json(ASSET_LINKS);
 
     const origin = await env.GYM.get("origin", { cacheTtl: 30 });
     if (!origin) return offline(url);
