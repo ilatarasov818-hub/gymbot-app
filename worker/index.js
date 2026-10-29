@@ -42,14 +42,16 @@ async function setOrigin(request, env) {
   return new Response("ok");
 }
 
-function offline(url) {
+// why — причина в заголовке X-Gym-Why, чтобы видеть, где обрыв.
+function offline(url, why) {
+  const headers = { "X-Gym-Why": why };
   if (url.pathname.startsWith("/api/")) {
     return Response.json(
       { error: "Бот сейчас недоступен. Попробуй через пару минут." },
-      { status: 503, headers: { "Access-Control-Allow-Origin": "*" } },
+      { status: 503, headers: { ...headers, "Access-Control-Allow-Origin": "*" } },
     );
   }
-  return new Response(OFFLINE_PAGE, { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new Response(OFFLINE_PAGE, { status: 503, headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
 }
 
 export default {
@@ -59,15 +61,18 @@ export default {
     if (url.pathname === "/.well-known/assetlinks.json") return Response.json(ASSET_LINKS);
 
     const origin = await env.GYM.get("origin", { cacheTtl: 30 });
-    if (!origin) return offline(url);
+    const colo = request.cf?.colo ?? "?";
+    if (!origin) return offline(url, `${colo} no-origin`);
     let response;
     try {
       response = await fetch(new Request(origin + url.pathname + url.search, request));
-    } catch {
-      return offline(url);
+    } catch (e) {
+      return offline(url, `${colo} fetch-error ${e.message} ${origin}`.slice(0, 200));
     }
     // 530 — туннель уже закрыт (бот перезапускается или компьютер выключен).
-    if (response.status === 530 || response.status === 502) return offline(url);
+    if (response.status === 530 || response.status === 502) {
+      return offline(url, `${colo} upstream ${response.status} ${origin}`);
+    }
     return response;
   },
 };
