@@ -54,24 +54,33 @@ function offline(url, why) {
   return new Response(OFFLINE_PAGE, { status: 503, headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
 }
 
+// Каждый сбой — запись why:<время> в KV на 7 дней, чтобы видеть сбои в чужих регионах.
+function logFailure(env, ctx, why) {
+  ctx.waitUntil(env.GYM.put(`why:${new Date().toISOString()}`, why, { expirationTtl: 7 * 86400 }).catch(() => {}));
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname === "/__origin" && request.method === "POST") return setOrigin(request, env);
     if (url.pathname === "/.well-known/assetlinks.json") return Response.json(ASSET_LINKS);
 
     const origin = await env.GYM.get("origin", { cacheTtl: 30 });
     const colo = request.cf?.colo ?? "?";
-    if (!origin) return offline(url, `${colo} no-origin`);
+    const fail = (why) => {
+      logFailure(env, ctx, `${why} ${url.pathname}`);
+      return offline(url, why);
+    };
+    if (!origin) return fail(`${colo} no-origin`);
     let response;
     try {
       response = await fetch(new Request(origin + url.pathname + url.search, request));
     } catch (e) {
-      return offline(url, `${colo} fetch-error ${e.message} ${origin}`.slice(0, 200));
+      return fail(`${colo} fetch-error ${e.message} ${origin}`.slice(0, 200));
     }
     // 530 — туннель уже закрыт (бот перезапускается или компьютер выключен).
     if (response.status === 530 || response.status === 502) {
-      return offline(url, `${colo} upstream ${response.status} ${origin}`);
+      return fail(`${colo} upstream ${response.status} ${origin}`);
     }
     return response;
   },
